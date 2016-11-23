@@ -13,10 +13,14 @@
     tools:context="com.example.lena.schorlebuddy.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-<com.example.lena.schorlebuddy.VerticalTextView
-    android:layout_width="15dp"
-    android:layout_height="150dp"
-    android:text="STATUS"
-    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-    />
+
+    <TextView android:id="@+id/txtview"
+
+        android:text="STATUS"
+        android:width="15dp"
+        android:height="130dp"
+        android:textSize="8pt"
+        android:textStyle="bold"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content" />
 </RelativeLayout>
