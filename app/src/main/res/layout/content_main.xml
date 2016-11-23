@@ -14,6 +14,7 @@
     tools:showIn="@layout/app_bar_main">
 
 
+
     <TextView android:id="@+id/txtview"
 
         android:text="STATUS"
