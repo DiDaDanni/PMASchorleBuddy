@@ -17,7 +17,7 @@
 
     <TextView android:id="@+id/txtview"
 
-        android:text="STATUSLEna"
+        android:text="STATUSLE"
         android:width="15dp"
         android:height="130dp"
         android:textSize="8pt"
