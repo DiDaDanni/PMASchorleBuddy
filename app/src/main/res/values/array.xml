@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="listArray">
+        <item>weiblich</item>
+        <item>männlich</item>
+    </string-array>
+
+    <string-array name="listValues">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="drinksName">
+        <item>Schorle weiß sauer 0,5</item>
+        <item>Schorle weiß sauer 0,25</item>
+        <item>Wein weiß 0,25</item>
+        <item>Wein rot 0,25</item>
+        <item>Glühwein 0,25</item>
+        <item>Bier 0,33</item>
+        <item>Bier 0,5</item>
+        <item>Schnapps 2cl</item>
+        <item>Wasser 0,25</item>
+        <item>Wasser 0,5</item>
+        <item>Sekt 0,2</item>
+        <item>Longdrink + 2cl</item>
+    </string-array>
+
+    <string-array name="drinksValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
+
+</resources>

@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">SchorleBuddy</string>
+    <string name="profil_name">Profil</string>
+    <string name="title_activity_preferences">Profil</string>
+    <string name="picture">Picture</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="profile_name">Lena</string>
 </resources>

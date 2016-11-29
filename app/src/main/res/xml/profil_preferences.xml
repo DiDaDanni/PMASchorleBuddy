@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditTextPreference
+        android:title="Benutzername"
+        android:key="username">
+    </EditTextPreference>
+    <Preference
+        android:title="Bild"
+        android:key="@string/picture"
+        android:summary="Ändere dein Benutzerbild">
+    </Preference>
+    <ListPreference
+        android:title="Geschlecht"
+        android:key="gender"
+        android:entries="@array/listArray"
+        android:entryValues="@array/listValues" />
+    <EditTextPreference android:title="Alter"
+        android:key="age"
+        android:inputType="number">
+    </EditTextPreference>
+    <EditTextPreference android:title="Gewicht in Kg"
+        android:key="weight"
+        android:inputType="number">
+    </EditTextPreference>
+
+</PreferenceScreen>

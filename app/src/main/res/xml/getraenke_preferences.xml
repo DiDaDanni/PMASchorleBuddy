@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <PreferenceCategory
+        android:title="BAR BESTÜCKEN"
+        android:key="barsetup">
+            <ListPreference
+                android:title="Getränk 1"
+                android:key="drinkone"
+                android:entries="@array/drinksName"
+                android:entryValues="@array/drinksValues"/>
+            <ListPreference
+                android:title="Getränk 2"
+                android:key="drinktoe"
+                android:entries="@array/drinksName"
+                android:entryValues="@array/drinksValues"/>
+            <ListPreference
+                android:title="Getränk 3"
+                android:key="drinkthree"
+                android:entries="@array/drinksName"
+                android:entryValues="@array/drinksValues"/>
+            <ListPreference
+                android:title="Getränk 4"
+                android:key="drinkfour"
+                android:entries="@array/drinksName"
+                android:entryValues="@array/drinksValues"/>
+    </PreferenceCategory>
+</PreferenceScreen>
