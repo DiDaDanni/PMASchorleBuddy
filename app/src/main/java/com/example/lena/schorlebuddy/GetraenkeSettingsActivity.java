@@ -30,7 +30,7 @@ public class GetraenkeSettingsActivity extends AppCompatActivity {
         ab.setDisplayHomeAsUpEnabled(true);
 
         /* Replace Content with Fragment */
-        getFragmentManager().beginTransaction().replace(R.id.content_main, new GetraenkeSettingsActivity.MyPreferenceFragment()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.app_frame, new GetraenkeSettingsActivity.MyPreferenceFragment()).commit();
     }
 
     /* Create PreferenceFragment and fill with content of xml.profil_preferences */

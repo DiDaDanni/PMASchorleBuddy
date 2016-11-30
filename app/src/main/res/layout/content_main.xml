@@ -10,8 +10,9 @@
     android:layout_marginTop="5dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.lena.schorlebuddy.MainActivity"
-    tools:showIn="@layout/app_bar_main"
     android:weightSum="1">
+    <!--tools:showIn="@layout/app_bar_main"-->
+
 
     <GridLayout
         android:id="@+id/grid_status"

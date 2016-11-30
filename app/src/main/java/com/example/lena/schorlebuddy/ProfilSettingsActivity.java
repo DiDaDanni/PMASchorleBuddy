@@ -24,15 +24,16 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
 
         // Enable the Up button
-         ab.setDisplayHomeAsUpEnabled(true);
+        ab.setDisplayHomeAsUpEnabled(true);
+        //ab.hide();
 
         /* Replace Content with Fragment */
-        getFragmentManager().beginTransaction().replace(R.id.content_main, new MyPreferenceFragment()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.app_frame, new MyPreferenceFragment()).commit();
+
     }
 
     /* Create PreferenceFragment and fill with content of xml.profil_preferences */
