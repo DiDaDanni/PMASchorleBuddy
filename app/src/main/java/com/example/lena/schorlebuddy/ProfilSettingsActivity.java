@@ -2,6 +2,7 @@ package com.example.lena.schorlebuddy;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -29,7 +30,6 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
 
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
-        //ab.hide();
 
         /* Replace Content with Fragment */
         getFragmentManager().beginTransaction().replace(R.id.app_frame, new MyPreferenceFragment()).commit();
@@ -68,15 +68,54 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             updatePreference(findPreference(key), key);
+
+            /*if (key.equals("gender"))
+            {
+                ListPreference listPreference = (ListPreference) findPreference(key);
+                String currValue = listPreference.getValue();
+                if (currValue.equals("1"))  //weiblich
+                {
+                    CalculatePromille.gender = 1;
+                }
+                else if (currValue.equals("2")) //männlich
+                {
+                    CalculatePromille.gender = 2;
+                }
+            }
+            else if (key.equals("weight")){
+                EditTextPreference textPreference = (EditTextPreference) findPreference(key);
+                CalculatePromille.weight = Integer.parseInt(textPreference.getText());
+            }*/
+
         }
 
         private void updatePreference(Preference preference, String key) {
+            if (key.equals("gender"))
+            {
+                ListPreference listPreference = (ListPreference) findPreference(key);
+                String currValue = listPreference.getValue();
+                if (currValue.equals("1"))  //weiblich
+                {
+                    CalculatePromille.gender = 1;
+                }
+                else if (currValue.equals("2")) //männlich
+                {
+                    CalculatePromille.gender = 2;
+                }
+            }
+            else if (key.equals("weight")){
+                EditTextPreference textPreference = (EditTextPreference) findPreference(key);
+                CalculatePromille.weight = Integer.parseInt(textPreference.getText());
+            }
+
+
             if (preference == null) return;
             if (preference instanceof ListPreference) {
                 ListPreference listPreference = (ListPreference) preference;
                 listPreference.setSummary(listPreference.getEntry());
                 return;
             }
+
             SharedPreferences sharedPrefs = getPreferenceManager().getSharedPreferences();
             preference.setSummary(sharedPrefs.getString(key, "Default"));
         }

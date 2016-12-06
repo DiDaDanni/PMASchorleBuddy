@@ -12,10 +12,10 @@
     <string name="side_content_1">STATUS</string>
     <string name="side_content_2">BAR</string>
     <string name="side_content_3">AKTIONEN</string>
-    <string name="ImgBtn_wein">Wein</string>
-    <string name="ImgBtn_schorle">Schorle</string>
-    <string name="ImgBtn_bier">Bier</string>
-    <string name="ImgBtn_schnaps">Schnaps</string>
+    <string name="ImgBtn_wein">0,25l Wein</string>
+    <string name="ImgBtn_schorle">0,25l Schorle</string>
+    <string name="ImgBtn_bier">0,33l Bier</string>
+    <string name="ImgBtn_schnaps">2cl Schnaps</string>
     <string name="ImgBtn_plus">Liste öffnen</string>
     <string name="ImgBtn_wasser">Wasser</string>
     <string name="ImgBtn_camera">Kamera</string>
