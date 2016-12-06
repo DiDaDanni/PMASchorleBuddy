@@ -14,7 +14,6 @@ public class CalculatePromille {
 
     public static double Calculate(String drink){
 
-
         double result =0;
         double alkoholMenge = 0;
 

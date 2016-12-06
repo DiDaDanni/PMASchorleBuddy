@@ -27,15 +27,16 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
     boolean asyncTaskActive = false;
-
+    Double erg = 0.00;
     private class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
 
         @Override
         protected String doInBackground(String... drink) {
             Double result = CalculatePromille.Calculate(drink[0]);
             asyncTaskActive = false;
-            result = Math.round(100.0 * result) / 100.0;    //auf 2 nach Kommastellen runden
-            return result.toString();
+            erg += result;
+            erg = Math.round(100.0 * erg) / 100.0;      //auf 2 nach Kommastellen runden
+            return erg.toString();
         }
 
         @Override
