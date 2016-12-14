@@ -186,18 +186,20 @@
             android:id="@+id/imgBtn_plus"
             android:layout_column="6"
             android:layout_row="0"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/plus_48"
             android:onClick="onImageButtonClick"
+            android:background="@drawable/img_btn_style"
             android:tag="@string/ImgBtn_plus"/>
         <ImageButton
             android:id="@+id/imgBtn_wasser"
             android:layout_column="6"
             android:layout_row="1"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/water_24"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/water_48"
+            android:background="@drawable/img_btn_style"
             android:onClick="onImageButtonClick"
             android:tag="@string/ImgBtn_wasser"/>
 
