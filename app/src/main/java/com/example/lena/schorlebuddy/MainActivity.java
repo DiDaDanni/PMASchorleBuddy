@@ -2,6 +2,7 @@ package com.example.lena.schorlebuddy;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateFormat;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -23,11 +25,30 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
+    //duration
+    public static final long SLEEPTIME = 10;
+    boolean running;
+    Thread refreshThread;
+    double time;
+    TextView durationView;
+
+    //start
+    TextView textview;
+    boolean firstTime = true;
+
+    //asyncTask
+    //TextView myTextView;
     boolean asyncTaskActive = false;
     Double erg = 0.00;
+
     private class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
 
         @Override
@@ -46,9 +67,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String promille) {
-
-            TextView myTextView = (TextView)findViewById(R.id.txtview_promille);
-            myTextView.setText(""+promille+"‰");
+            MainFragment.myTextView.setText(""+promille+"‰");
         }
     }
 
@@ -63,7 +82,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        running = false;
+        time = 0;
 
         if(savedInstanceState == null){
             mainFragment = new MainFragment();
@@ -71,8 +91,10 @@ public class MainActivity extends AppCompatActivity
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.app_frame, mainFragment, "MainFragment");
             fragmentTransaction.commit();
-
         }
+
+       // SharedPreferences sharedPrefs = getSharedPreferences(FILENAME, 0);
+        //MainFragment.myTextView.setText(sharedPrefs.getString(VAL_KEY, ""));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -96,7 +118,25 @@ public class MainActivity extends AppCompatActivity
             asyncTaskActive = true;
         }
         //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
-      // Toast.makeText(this, "clicked ImageButton "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "clicked ImageButton "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
+
+        if (firstTime)
+        {
+            //set startTime
+            Date d = new Date();
+            CharSequence s  = DateFormat.format("kk:mm:ss ", d.getTime());  //kk for 24h format
+            textview = (TextView)findViewById(R.id.startTime);
+            textview.setText(s);
+
+            durationView = (TextView)findViewById(R.id.duration);
+
+            if (!running) {
+                running = true;
+                initThread();
+            }
+
+            firstTime = false;
+        }
 
     }
 
@@ -171,4 +211,37 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public void initThread() {
+        refreshThread = new Thread(new Runnable() {
+            public void run() {
+                while (running) {
+                    time = time + 0.01;
+                    try {
+                        Thread.sleep(SLEEPTIME);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            durationView.setText(getString(R.string.time_string, String.format("%.2f", time)));
+                        }
+                    });
+
+                }
+            }
+        });
+        refreshThread.start();
+    }
+
+    protected void onStop() {
+        super.onStop();
+
+        SharedPreferences sharedPrefs = getSharedPreferences(MainFragment.FILENAME, 0);
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(MainFragment.VAL_KEY, MainFragment.myTextView.getText().toString());
+        editor.commit();
+    }
 }
+
+

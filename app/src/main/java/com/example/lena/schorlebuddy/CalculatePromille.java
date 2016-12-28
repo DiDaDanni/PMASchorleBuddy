@@ -36,6 +36,9 @@ public class CalculatePromille {
             case 2:
                 result = alkoholMenge/(weight*0.75);
         }
+
+        //Resorptionsfaktor zwischen 10 und 30%
+        result = 0.8 * result;
         return result;
     }
 

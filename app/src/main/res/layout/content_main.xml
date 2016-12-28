@@ -73,23 +73,28 @@
             </TableRow>
             <TableRow>
                 <TextView
-                    android:id="@+id/startTime"
-                    android:text="Start:"/>
+                    android:id="@+id/startLabel"
+                    android:text="@string/start"/>
+                <TextView
+                    android:id="@+id/startTime"/>
             </TableRow>
 
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <TextView
-                    android:id="@+id/duration"
-                    android:text="Dauer:"/>
+                    android:id="@+id/durationLabel"
+                    android:text="@string/duration"/>
+                <TextView
+                    android:id="@+id/duration"/>
             </TableRow>
 
             <TableRow>
                 <TextView
-                    android:id="@+id/sober"
-                    android:text="nüchtern in:"/>
-
+                    android:id="@+id/soberLabel"
+                    android:text="@string/sober"/>
+                <TextView
+                    android:id="@+id/sober"/>
             </TableRow>
         </TableLayout>
     </GridLayout>

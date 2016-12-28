@@ -16,6 +16,10 @@ import java.util.Date;
 
 public class MainFragment extends Fragment {
     TextView textview;
+    public static TextView myTextView;
+    public static final String FILENAME = "PreferencesFilename";
+    public static final String VAL_KEY = "ValueKey";
+
 
 //   private AnalogFragmentChangeListener listener=null;
 //
@@ -34,7 +38,11 @@ public class MainFragment extends Fragment {
         textview = (TextView)view.findViewById(R.id.date);
         textview.setText(s);
 
-
+        myTextView = (TextView)view.findViewById(R.id.txtview_promille);
+        SharedPreferences sharedPrefs = this.getActivity().getSharedPreferences(FILENAME, 0);
+        MainFragment.myTextView.setText(sharedPrefs.getString(VAL_KEY, ""));
+       // SharedPreferences sharedPrefs = getSharedPreferences(FILENAME, 0);
+        //myTextView.setText(sharedPrefs.getString(VAL_KEY, ""));
        // listener = (AnalogFragmentChangeListener)getActivity();
 
         return view;
