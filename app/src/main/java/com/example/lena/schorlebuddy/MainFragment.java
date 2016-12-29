@@ -13,21 +13,19 @@ import android.widget.Toast;
 
 import java.util.Date;
 
+import static com.example.lena.schorlebuddy.MainActivity.startTime;
+
 
 public class MainFragment extends Fragment {
     TextView textview;
-    public static TextView myTextView;
+    public static TextView myPromilleView, myStartView, myDurationView, mySoberView;
     public static final String FILENAME = "PreferencesFilename";
-    public static final String VAL_KEY = "ValueKey";
+    public static final String PROMILLE = "Promille";
+    public static final String START = "Start";
 
 
-//   private AnalogFragmentChangeListener listener=null;
-//
-//    public interface AnalogFragmentChangeListener {
-//        public void onAnalogChangeFragment();
-//    }
-	
 	@Override
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.content_main,
@@ -38,13 +36,17 @@ public class MainFragment extends Fragment {
         textview = (TextView)view.findViewById(R.id.date);
         textview.setText(s);
 
-        myTextView = (TextView)view.findViewById(R.id.txtview_promille);
         SharedPreferences sharedPrefs = this.getActivity().getSharedPreferences(FILENAME, 0);
-        MainFragment.myTextView.setText(sharedPrefs.getString(VAL_KEY, ""));
-       // SharedPreferences sharedPrefs = getSharedPreferences(FILENAME, 0);
-        //myTextView.setText(sharedPrefs.getString(VAL_KEY, ""));
-       // listener = (AnalogFragmentChangeListener)getActivity();
+        //get old Promille value
+        myPromilleView = (TextView)view.findViewById(R.id.txtview_promille);
+        myPromilleView.setText(sharedPrefs.getString(PROMILLE, ""));
 
+        //get old start time
+        myStartView = (TextView)view.findViewById(R.id.startTime);
+        myStartView.setText(sharedPrefs.getString(START, ""));
+
+        myDurationView = (TextView)view.findViewById((R.id.duration));
+        mySoberView = (TextView)view.findViewById(R.id.sober);
         return view;
     }
 

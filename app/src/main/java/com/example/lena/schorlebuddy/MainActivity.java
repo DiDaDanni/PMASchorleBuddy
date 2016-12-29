@@ -17,37 +17,55 @@ import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.text.SimpleDateFormat;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
+import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
+import static com.example.lena.schorlebuddy.MainFragment.START;
+import static com.example.lena.schorlebuddy.MainFragment.myDurationView;
+import static com.example.lena.schorlebuddy.MainFragment.myPromilleView;
+import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
+import static com.example.lena.schorlebuddy.MainFragment.myStartView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
     //duration
     public static final long SLEEPTIME = 10;
-    boolean running;
+    boolean durationRunning = false;
+    long diff;
     Thread refreshThread;
-    double time;
-    TextView durationView;
+    long durationSec, durationMin, durationHour;
 
     //start
-    TextView textview;
+    public static long startTime = 0;
     boolean firstTime = true;
 
     //asyncTask
-    //TextView myTextView;
     boolean asyncTaskActive = false;
     Double erg = 0.00;
+
+    //sober
+    boolean soberRunning = false;
+    Thread mySoberThread;
+    double soberTime;
+    int soberSec, soberMin, soberHour;
+    NumberFormat numberFormat = new DecimalFormat("0");
+
+
+    MainFragment mainFragment;
+    static final int PROFILE_PIC_REQUEST = 1;
+    static final int DIARY_PIC_REQUEST = 2;
+
 
     private class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
 
@@ -67,13 +85,10 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String promille) {
-            MainFragment.myTextView.setText(""+promille+"‰");
+            myPromilleView.setText(""+promille+"‰");
         }
     }
 
-    MainFragment mainFragment;
-    static final int PROFILE_PIC_REQUEST = 1;
-    static final int DIARY_PIC_REQUEST = 2;
 
 
     //ImageButton bierBtn;
@@ -82,8 +97,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        running = false;
-        time = 0;
+        numberFormat.setRoundingMode(RoundingMode.DOWN);
 
         if(savedInstanceState == null){
             mainFragment = new MainFragment();
@@ -92,9 +106,6 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.add(R.id.app_frame, mainFragment, "MainFragment");
             fragmentTransaction.commit();
         }
-
-       // SharedPreferences sharedPrefs = getSharedPreferences(FILENAME, 0);
-        //MainFragment.myTextView.setText(sharedPrefs.getString(VAL_KEY, ""));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -111,33 +122,36 @@ public class MainActivity extends AppCompatActivity
     public void onImageButtonClick(View view)
     {
         if (asyncTaskActive)
-            Toast.makeText(this, "Computation running", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Computation durationRunning", Toast.LENGTH_SHORT).show();
         else {
             //Call AsyncTask
             new CalculatePromilleTask().execute(String.valueOf(view.getTag()));
             asyncTaskActive = true;
         }
         //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "clicked ImageButton "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "consumed "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
 
         if (firstTime)
         {
             //set startTime
             Date d = new Date();
-            CharSequence s  = DateFormat.format("kk:mm:ss ", d.getTime());  //kk for 24h format
-            textview = (TextView)findViewById(R.id.startTime);
-            textview.setText(s);
+            startTime = d.getTime();
+            CharSequence s  = DateFormat.format("kk:mm:ss ", startTime);  //kk for 24h format
+            myStartView = (TextView)findViewById(R.id.startTime);
+            myStartView.setText(s);
 
-            durationView = (TextView)findViewById(R.id.duration);
-
-            if (!running) {
-                running = true;
-                initThread();
+            if (!durationRunning) {
+                durationRunning = true;
+                //start thread for duration
+                durationThread();
             }
-
             firstTime = false;
         }
 
+        //start promille thread
+        soberRunning=true;
+        soberThread();
+        soberRunning = false;
     }
 
     public void onProfileButtonClick(View view)
@@ -212,11 +226,16 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void initThread() {
+    public void durationThread() {
         refreshThread = new Thread(new Runnable() {
             public void run() {
-                while (running) {
-                    time = time + 0.01;
+                while (durationRunning) {
+                    //time = time + 0.01;
+                    Date currentDate = new Date();
+                    diff = currentDate.getTime() - startTime;
+                    durationSec  = diff / 1000 % 60;
+                    durationMin = diff / (60 * 1000)  % 60;
+                    durationHour = diff / (60 * 60 *1000);
                     try {
                         Thread.sleep(SLEEPTIME);
                     } catch (InterruptedException ex) {
@@ -224,7 +243,10 @@ public class MainActivity extends AppCompatActivity
                     }
                     runOnUiThread(new Runnable() {
                         public void run() {
-                            durationView.setText(getString(R.string.time_string, String.format("%.2f", time)));
+                            //durationView.setText(getString(R.string.time_string, String.format("%.2f", time)));
+                            myDurationView.setText(String.valueOf(durationHour)+ "h "+String.valueOf(durationMin)
+                                    +"min "+String.valueOf(durationSec) + "sec");
+
                         }
                     });
 
@@ -234,13 +256,50 @@ public class MainActivity extends AppCompatActivity
         refreshThread.start();
     }
 
+    public void soberThread() {
+        mySoberThread = new Thread(new Runnable() {
+            public void run() {
+                while (soberRunning) {
+                    //berechnung
+                    soberTime = erg / 0.15;
+
+                    soberTime = Math.round(100.0 * soberTime) / 100.0;
+
+                    soberHour = Integer.parseInt(numberFormat.format(soberTime));
+                    double min = (soberTime - soberHour) * 60;
+                    min = Math.round(100.0 * min) / 100.0;
+                    soberMin = Integer.parseInt(numberFormat.format(min));
+                    double sec = (min - soberMin) * 60;
+                    soberSec = Integer.parseInt(numberFormat.format(sec));
+
+                    try {
+                        Thread.sleep(SLEEPTIME);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            //ausgabe
+                            mySoberView.setText(String.valueOf(soberHour)+ "h "+String.valueOf(soberMin)
+                                    +"min "+String.valueOf(soberSec) + "sec");
+                        }
+                    });
+
+                }
+            }
+        });
+        mySoberThread.start();
+    }
+
+    //save values
     protected void onStop() {
         super.onStop();
 
-        SharedPreferences sharedPrefs = getSharedPreferences(MainFragment.FILENAME, 0);
+        SharedPreferences sharedPrefs = getSharedPreferences(FILENAME, 0);
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(MainFragment.VAL_KEY, MainFragment.myTextView.getText().toString());
-        editor.commit();
+        editor.putString(PROMILLE, myPromilleView.getText().toString());
+        editor.putString(START, myStartView.getText().toString());
+        editor.apply(); //apply besser als commit da es im Hintergrund läuft
     }
 }
 
