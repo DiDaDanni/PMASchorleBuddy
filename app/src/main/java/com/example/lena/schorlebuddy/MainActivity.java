@@ -121,6 +121,12 @@ public class MainActivity extends AppCompatActivity
 }
     public void onImageButtonClick(View view)
     {
+        if(CalculatePromille.gender == 0 || CalculatePromille.weight == 0)
+        {
+            //nur wenn beides ausgewählt kann berechnung starten
+
+        }
+
         if (asyncTaskActive)
             Toast.makeText(this, "Computation durationRunning", Toast.LENGTH_SHORT).show();
         else {
@@ -151,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         //start promille thread
         soberRunning=true;
         soberThread();
-        soberRunning = false;
+        //soberRunning = false;
     }
 
     public void onProfileButtonClick(View view)
@@ -282,6 +288,7 @@ public class MainActivity extends AppCompatActivity
                             //ausgabe
                             mySoberView.setText(String.valueOf(soberHour)+ "h "+String.valueOf(soberMin)
                                     +"min "+String.valueOf(soberSec) + "sec");
+                            soberRunning = false;
                         }
                     });
 

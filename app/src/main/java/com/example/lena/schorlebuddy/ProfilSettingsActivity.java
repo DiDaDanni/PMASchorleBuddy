@@ -18,12 +18,14 @@ import android.support.v7.widget.Toolbar;
  */
 
 public class ProfilSettingsActivity  extends AppCompatActivity {
+    static boolean first = false;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+        protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_bar_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
@@ -68,28 +70,7 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             updatePreference(findPreference(key), key);
-
-            /*if (key.equals("gender"))
-            {
-                ListPreference listPreference = (ListPreference) findPreference(key);
-                String currValue = listPreference.getValue();
-                if (currValue.equals("1"))  //weiblich
-                {
-                    CalculatePromille.gender = 1;
-                }
-                else if (currValue.equals("2")) //männlich
-                {
-                    CalculatePromille.gender = 2;
-                }
-            }
-            else if (key.equals("weight")){
-                EditTextPreference textPreference = (EditTextPreference) findPreference(key);
-                CalculatePromille.weight = Integer.parseInt(textPreference.getText());
-            }*/
-
-        }
-
-        private void updatePreference(Preference preference, String key) {
+            //immer wenn sich die preferences ändern
             if (key.equals("gender"))
             {
                 ListPreference listPreference = (ListPreference) findPreference(key);
@@ -108,11 +89,15 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
                 CalculatePromille.weight = Integer.parseInt(textPreference.getText());
             }
 
+        }
 
+        private void updatePreference(Preference preference, String key) {
             if (preference == null) return;
             if (preference instanceof ListPreference) {
                 ListPreference listPreference = (ListPreference) preference;
                 listPreference.setSummary(listPreference.getEntry());
+
+
                 return;
             }
 
