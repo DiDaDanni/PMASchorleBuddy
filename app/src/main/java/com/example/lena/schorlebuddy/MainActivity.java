@@ -29,6 +29,12 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.example.lena.schorlebuddy.CalculateFunction.durationHour;
+import static com.example.lena.schorlebuddy.CalculateFunction.durationMin;
+import static com.example.lena.schorlebuddy.CalculateFunction.durationSec;
+import static com.example.lena.schorlebuddy.CalculateFunction.soberHour;
+import static com.example.lena.schorlebuddy.CalculateFunction.soberMin;
+import static com.example.lena.schorlebuddy.CalculateFunction.soberSec;
 import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
 import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
 import static com.example.lena.schorlebuddy.MainFragment.START;
@@ -36,16 +42,15 @@ import static com.example.lena.schorlebuddy.MainFragment.myDurationView;
 import static com.example.lena.schorlebuddy.MainFragment.myPromilleView;
 import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
 import static com.example.lena.schorlebuddy.MainFragment.myStartView;
+import static com.example.lena.schorlebuddy.MainFragment.myTexteinblendungenView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
     //duration
-    public static final long SLEEPTIME = 10;
+    public static final long SLEEPTIME = 1000;
     boolean durationRunning = false;
-    long diff;
     Thread refreshThread;
-    long durationSec, durationMin, durationHour;
 
     //start
     public static long startTime = 0;
@@ -53,15 +58,11 @@ public class MainActivity extends AppCompatActivity
 
     //asyncTask
     boolean asyncTaskActive = false;
-    Double erg = 0.00;
+    public static Double erg = 0.00;
 
     //sober
-    boolean soberRunning = false;
+    public static boolean soberRunning = false;
     Thread mySoberThread;
-    double soberTime;
-    int soberSec, soberMin, soberHour;
-    NumberFormat numberFormat = new DecimalFormat("0");
-
 
     MainFragment mainFragment;
     static final int PROFILE_PIC_REQUEST = 1;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected String doInBackground(String... drink) {
-            Double result = CalculatePromille.Calculate(drink[0]);
+            Double result = CalculateFunction.Calculate(drink[0]);
             asyncTaskActive = false;
             erg += result;
             erg = Math.round(100.0 * erg) / 100.0;      //auf 2 nach Kommastellen runden
@@ -90,15 +91,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-
     //ImageButton bierBtn;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        numberFormat.setRoundingMode(RoundingMode.DOWN);
+        //numberFormat.setRoundingMode(RoundingMode.DOWN);
 
         if(savedInstanceState == null){
             mainFragment = new MainFragment();
@@ -122,7 +121,8 @@ public class MainActivity extends AppCompatActivity
 }
     public void onImageButtonClick(View view)
     {
-        if(CalculatePromille.gender == 0 || CalculatePromille.weight == 0)
+        myTexteinblendungenView.setText("");
+        if(CalculateFunction.gender == 0 || CalculateFunction.weight == 0)
         {
             //nur wenn beides ausgewählt kann berechnung starten
             DialogFragment alertDialog = new AlertDialogFragment();
@@ -159,11 +159,11 @@ public class MainActivity extends AppCompatActivity
             }
 
             //start promille thread
+            CalculateFunction.SoberStartTime();
             soberRunning=true;
             soberThread();
             //soberRunning = false;
         }
-
 
     }
 
@@ -244,11 +244,7 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 while (durationRunning) {
                     //time = time + 0.01;
-                    Date currentDate = new Date();
-                    diff = currentDate.getTime() - startTime;
-                    durationSec  = diff / 1000 % 60;
-                    durationMin = diff / (60 * 1000)  % 60;
-                    durationHour = diff / (60 * 60 *1000);
+                    CalculateFunction.DurationTime();
                     try {
                         Thread.sleep(SLEEPTIME);
                     } catch (InterruptedException ex) {
@@ -274,19 +270,9 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 while (soberRunning) {
                     //berechnung
-                    soberTime = erg / 0.15;
-
-                    soberTime = Math.round(100.0 * soberTime) / 100.0;
-
-                    soberHour = Integer.parseInt(numberFormat.format(soberTime));
-                    double min = (soberTime - soberHour) * 60;
-                    min = Math.round(100.0 * min) / 100.0;
-                    soberMin = Integer.parseInt(numberFormat.format(min));
-                    double sec = (min - soberMin) * 60;
-                    soberSec = Integer.parseInt(numberFormat.format(sec));
-
+                    CalculateFunction.SoberTime();
                     try {
-                        Thread.sleep(SLEEPTIME);
+                        mySoberThread.sleep(SLEEPTIME);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -294,8 +280,13 @@ public class MainActivity extends AppCompatActivity
                         public void run() {
                             //ausgabe
                             mySoberView.setText(String.valueOf(soberHour)+ "h "+String.valueOf(soberMin)
-                                    +"min "+String.valueOf(soberSec) + "sec");
-                            soberRunning = false;
+                                   +"min "+String.valueOf(soberSec) + "sec");
+                            if (soberHour == 0 && soberMin == 0 && soberSec == 0){
+                                myTexteinblendungenView.setText(R.string.uRSober);
+                                erg = 0.00;
+                                myPromilleView.setText("0.00‰");
+                                soberRunning = false;
+                            }
                         }
                     });
 

@@ -13,7 +13,7 @@ import java.util.Date;
 
 public class MainFragment extends Fragment {
     TextView textview;
-    public static TextView myPromilleView, myStartView, myDurationView, mySoberView;
+    public static TextView myPromilleView, myStartView, myDurationView, mySoberView, myTexteinblendungenView;
     public static final String FILENAME = "PreferencesFilename";
     public static final String PROMILLE = "Promille";
     public static final String START = "Start";
@@ -42,6 +42,7 @@ public class MainFragment extends Fragment {
 
         myDurationView = (TextView)view.findViewById((R.id.duration));
         mySoberView = (TextView)view.findViewById(R.id.sober);
+        myTexteinblendungenView = (TextView)view.findViewById(R.id.txtview_blend);
         return view;
     }
 

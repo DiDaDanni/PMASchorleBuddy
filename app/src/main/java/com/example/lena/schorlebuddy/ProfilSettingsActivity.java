@@ -77,18 +77,18 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
                 String currValue = listPreference.getValue();
                 if (currValue.equals("1"))  //weiblich
                 {
-                    CalculatePromille.gender = 1;
+                    CalculateFunction.gender = 1;
                 }
                 else if (currValue.equals("2")) //männlich
                 {
-                    CalculatePromille.gender = 2;
+                    CalculateFunction.gender = 2;
                 }
             }
             else if (key.equals("weight")){
                 EditTextPreference textPreference = (EditTextPreference) findPreference(key);
                 String value = textPreference.getText();
                 //if (!value.isEmpty())
-                    CalculatePromille.weight = Integer.parseInt(value);
+                    CalculateFunction.weight = Integer.parseInt(value);
             }
 
         }

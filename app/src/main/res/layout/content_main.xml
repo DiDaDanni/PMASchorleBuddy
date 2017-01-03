@@ -102,8 +102,8 @@
         android:id="@+id/txtview_blend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="texteinblendungen"
-        android:textSize="12pt"
+        android:textSize="8pt"
+        android:textAlignment="center"
         />
     <GridLayout
         android:id="@+id/grid_bar"
