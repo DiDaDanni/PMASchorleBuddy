@@ -21,10 +21,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,9 +44,15 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
     //duration
-    public static final long SLEEPTIME = 1000;
+    final long SLEEPTIME_DUR = 10;
     boolean durationRunning = false;
     Thread refreshThread;
+
+    //sober
+    final long SLEEPTIME_SOBER = 1000;
+    boolean soberRunning = false;
+    Thread mySoberThread;
+
 
     //start
     public static long startTime = 0;
@@ -59,10 +61,6 @@ public class MainActivity extends AppCompatActivity
     //asyncTask
     boolean asyncTaskActive = false;
     public static Double erg = 0.00;
-
-    //sober
-    public static boolean soberRunning = false;
-    Thread mySoberThread;
 
     MainFragment mainFragment;
     static final int PROFILE_PIC_REQUEST = 1;
@@ -246,7 +244,7 @@ public class MainActivity extends AppCompatActivity
                     //time = time + 0.01;
                     CalculateFunction.DurationTime();
                     try {
-                        Thread.sleep(SLEEPTIME);
+                        Thread.sleep(SLEEPTIME_DUR);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -272,7 +270,7 @@ public class MainActivity extends AppCompatActivity
                     //berechnung
                     CalculateFunction.SoberTime();
                     try {
-                        mySoberThread.sleep(SLEEPTIME);
+                        mySoberThread.sleep(SLEEPTIME_SOBER);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -280,7 +278,7 @@ public class MainActivity extends AppCompatActivity
                         public void run() {
                             //ausgabe
                             mySoberView.setText(String.valueOf(soberHour)+ "h "+String.valueOf(soberMin)
-                                   +"min "+String.valueOf(soberSec) + "sec");
+                                    +"min "+String.valueOf(soberSec) + "sec");
                             if (soberHour == 0 && soberMin == 0 && soberSec == 0){
                                 myTexteinblendungenView.setText(R.string.uRSober);
                                 erg = 0.00;
