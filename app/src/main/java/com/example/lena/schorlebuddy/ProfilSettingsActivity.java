@@ -86,7 +86,9 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
             }
             else if (key.equals("weight")){
                 EditTextPreference textPreference = (EditTextPreference) findPreference(key);
-                CalculatePromille.weight = Integer.parseInt(textPreference.getText());
+                String value = textPreference.getText();
+                //if (!value.isEmpty())
+                    CalculatePromille.weight = Integer.parseInt(value);
             }
 
         }

@@ -1,5 +1,6 @@
 package com.example.lena.schorlebuddy;
 
+import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -124,40 +125,46 @@ public class MainActivity extends AppCompatActivity
         if(CalculatePromille.gender == 0 || CalculatePromille.weight == 0)
         {
             //nur wenn beides ausgewählt kann berechnung starten
-
+            DialogFragment alertDialog = new AlertDialogFragment();
+            alertDialog.show(getFragmentManager(),"dialog");
         }
 
-        if (asyncTaskActive)
-            Toast.makeText(this, "Computation durationRunning", Toast.LENGTH_SHORT).show();
-        else {
-            //Call AsyncTask
-            new CalculatePromilleTask().execute(String.valueOf(view.getTag()));
-            asyncTaskActive = true;
-        }
-        //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "consumed "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
+        else{
 
-        if (firstTime)
-        {
-            //set startTime
-            Date d = new Date();
-            startTime = d.getTime();
-            CharSequence s  = DateFormat.format("kk:mm:ss ", startTime);  //kk for 24h format
-            myStartView = (TextView)findViewById(R.id.startTime);
-            myStartView.setText(s);
-
-            if (!durationRunning) {
-                durationRunning = true;
-                //start thread for duration
-                durationThread();
+            if (asyncTaskActive)
+                Toast.makeText(this, "Computation durationRunning", Toast.LENGTH_SHORT).show();
+            else {
+                //Call AsyncTask
+                new CalculatePromilleTask().execute(String.valueOf(view.getTag()));
+                asyncTaskActive = true;
             }
-            firstTime = false;
+            //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "consumed "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
+
+            if (firstTime)
+            {
+                //set startTime
+                Date d = new Date();
+                startTime = d.getTime();
+                CharSequence s  = DateFormat.format("kk:mm:ss ", startTime);  //kk for 24h format
+                myStartView = (TextView)findViewById(R.id.startTime);
+                myStartView.setText(s);
+
+                if (!durationRunning) {
+                    durationRunning = true;
+                    //start thread for duration
+                    durationThread();
+                }
+                firstTime = false;
+            }
+
+            //start promille thread
+            soberRunning=true;
+            soberThread();
+            //soberRunning = false;
         }
 
-        //start promille thread
-        soberRunning=true;
-        soberThread();
-        //soberRunning = false;
+
     }
 
     public void onProfileButtonClick(View view)
