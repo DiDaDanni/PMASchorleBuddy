@@ -20,7 +20,7 @@ public class AlertDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setTitle("Achtung!")
-                .setMessage("Vor der Berechnung muss das Geschlecht und das Gewicht angegeben werden.")
+                .setMessage("Vor der Berechnung müssen das Geschlecht und das Gewicht angegeben werden.")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int value){
@@ -30,4 +30,5 @@ public class AlertDialogFragment extends DialogFragment {
                 })
                 .create();
     }
+
 }

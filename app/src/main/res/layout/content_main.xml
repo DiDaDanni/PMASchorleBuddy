@@ -194,9 +194,8 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/plus_48"
-            android:onClick="onImageButtonClick"
-            android:background="@drawable/img_btn_style"
-            android:tag="@string/ImgBtn_plus"/>
+            android:onClick="onPlusButtonClick"
+            android:background="@drawable/img_btn_style" />
         <ImageButton
             android:id="@+id/imgBtn_wasser"
             android:layout_column="6"
@@ -205,8 +204,7 @@
             android:layout_height="48dp"
             android:src="@drawable/water_48"
             android:background="@drawable/img_btn_style"
-            android:onClick="onImageButtonClick"
-            android:tag="@string/ImgBtn_wasser"/>
+            android:onClick="onWaterButtonClick" />
 
     </GridLayout>
 

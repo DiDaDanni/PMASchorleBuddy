@@ -15,64 +15,39 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateFormat;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import static com.example.lena.schorlebuddy.CalculateFunction.durationHour;
-import static com.example.lena.schorlebuddy.CalculateFunction.durationMin;
-import static com.example.lena.schorlebuddy.CalculateFunction.durationSec;
-import static com.example.lena.schorlebuddy.CalculateFunction.soberHour;
-import static com.example.lena.schorlebuddy.CalculateFunction.soberMin;
-import static com.example.lena.schorlebuddy.CalculateFunction.soberSec;
+import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
 import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
 import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
 import static com.example.lena.schorlebuddy.MainFragment.START;
-import static com.example.lena.schorlebuddy.MainFragment.myDurationView;
 import static com.example.lena.schorlebuddy.MainFragment.myPromilleView;
-import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
 import static com.example.lena.schorlebuddy.MainFragment.myStartView;
 import static com.example.lena.schorlebuddy.MainFragment.myTexteinblendungenView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
-    //duration
-    final long SLEEPTIME_DUR = 10;
-    boolean durationRunning = false;
-    Thread refreshThread;
-
-    //sober
-    final long SLEEPTIME_SOBER = 1000;
-    boolean soberRunning = false;
-    Thread mySoberThread;
-
-
     //start
     public static long startTime = 0;
-    boolean firstTime = true;
 
     //asyncTask
-    boolean asyncTaskActive = false;
+    public static boolean asyncTaskActive = false;
     public static Double erg = 0.00;
 
     MainFragment mainFragment;
     static final int PROFILE_PIC_REQUEST = 1;
     static final int DIARY_PIC_REQUEST = 2;
 
-
-    private class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
+    public static class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
 
         @Override
         protected String doInBackground(String... drink) {
-            Double result = CalculateFunction.Calculate(drink[0]);
             asyncTaskActive = false;
+            Double result = CalculateFunction.calcPromille(drink[0]);
             erg += result;
             erg = Math.round(100.0 * erg) / 100.0;      //auf 2 nach Kommastellen runden
             return erg.toString();
@@ -94,8 +69,6 @@ public class MainActivity extends AppCompatActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //numberFormat.setRoundingMode(RoundingMode.DOWN);
 
         if(savedInstanceState == null){
             mainFragment = new MainFragment();
@@ -119,6 +92,7 @@ public class MainActivity extends AppCompatActivity
 }
     public void onImageButtonClick(View view)
     {
+        soberRunning = false;
         myTexteinblendungenView.setText("");
         if(CalculateFunction.gender == 0 || CalculateFunction.weight == 0)
         {
@@ -130,7 +104,7 @@ public class MainActivity extends AppCompatActivity
         else{
 
             if (asyncTaskActive)
-                Toast.makeText(this, "Computation durationRunning", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Computation Running", Toast.LENGTH_SHORT).show();
             else {
                 //Call AsyncTask
                 new CalculatePromilleTask().execute(String.valueOf(view.getTag()));
@@ -139,30 +113,19 @@ public class MainActivity extends AppCompatActivity
             //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
             Toast.makeText(this, "consumed "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
 
-            if (firstTime)
-            {
-                //set startTime
-                Date d = new Date();
-                startTime = d.getTime();
-                CharSequence s  = DateFormat.format("kk:mm:ss ", startTime);  //kk for 24h format
-                myStartView = (TextView)findViewById(R.id.startTime);
-                myStartView.setText(s);
-
-                if (!durationRunning) {
-                    durationRunning = true;
-                    //start thread for duration
-                    durationThread();
-                }
-                firstTime = false;
-            }
-
-            //start promille thread
-            CalculateFunction.SoberStartTime();
-            soberRunning=true;
-            soberThread();
-            //soberRunning = false;
+            CalculateFunction.startThreads();
         }
 
+    }
+
+    public void onPlusButtonClick(View view){
+        DialogFragment drinkDialog = new DrinkDialogFragment();
+        drinkDialog.show(getFragmentManager(),"drinkDialog");
+    }
+
+    public void onWaterButtonClick(View view){
+        DialogFragment drinkDialog = new WaterDialogFragment();
+        drinkDialog.show(getFragmentManager(),"waterDialog");
     }
 
     public void onProfileButtonClick(View view)
@@ -235,63 +198,6 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void durationThread() {
-        refreshThread = new Thread(new Runnable() {
-            public void run() {
-                while (durationRunning) {
-                    //time = time + 0.01;
-                    CalculateFunction.DurationTime();
-                    try {
-                        Thread.sleep(SLEEPTIME_DUR);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            //durationView.setText(getString(R.string.time_string, String.format("%.2f", time)));
-                            myDurationView.setText(String.valueOf(durationHour)+ "h "+String.valueOf(durationMin)
-                                    +"min "+String.valueOf(durationSec) + "sec");
-
-                        }
-                    });
-
-                }
-            }
-        });
-        refreshThread.start();
-    }
-
-    public void soberThread() {
-        mySoberThread = new Thread(new Runnable() {
-            public void run() {
-                while (soberRunning) {
-                    //berechnung
-                    CalculateFunction.SoberTime();
-                    try {
-                        mySoberThread.sleep(SLEEPTIME_SOBER);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            //ausgabe
-                            mySoberView.setText(String.valueOf(soberHour)+ "h "+String.valueOf(soberMin)
-                                    +"min "+String.valueOf(soberSec) + "sec");
-                            if (soberHour == 0 && soberMin == 0 && soberSec == 0){
-                                myTexteinblendungenView.setText(R.string.uRSober);
-                                erg = 0.00;
-                                myPromilleView.setText("0.00‰");
-                                soberRunning = false;
-                            }
-                        }
-                    });
-
-                }
-            }
-        });
-        mySoberThread.start();
     }
 
     //save values

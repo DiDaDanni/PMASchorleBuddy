@@ -11,18 +11,19 @@
     </string-array>
 
     <string-array name="drinksName">
-        <item>Schorle weiß sauer 0,5</item>
-        <item>Schorle weiß sauer 0,25</item>
-        <item>Wein weiß 0,25</item>
-        <item>Wein rot 0,25</item>
-        <item>Glühwein 0,25</item>
-        <item>Bier 0,33</item>
-        <item>Bier 0,5</item>
+        <item>Bier 0,33l</item>
+        <item>Bier 0,5l</item>
+        <item>Schorle weiß 0,5l</item>
+        <item>Schorle rot 0,5l</item>
+        <item>Wein weiß 0,25l</item>
+        <item>Wein weiß 0,5l</item>
+        <item>Wein rot 0,25l</item>
+        <item>Wein rot 0,5l</item>
+        <item>Glühwein 0,25l</item>
+        <item>Sekt 0,1l</item>
+        <item>Sekt 0,2l</item>
         <item>Schnaps 2cl</item>
-        <item>Wasser 0,25</item>
-        <item>Wasser 0,5</item>
-        <item>Sekt 0,2</item>
-        <item>Longdrink + 2cl</item>
+        <item>Longdrink + 4cl</item>
     </string-array>
 
     <string-array name="drinksValues">
@@ -38,6 +39,11 @@
         <item>10</item>
         <item>11</item>
         <item>12</item>
+    </string-array>
+
+    <string-array name="waterChoice">
+        <item>Wasser 0,25l</item>
+        <item>Wasser 0,5l</item>
     </string-array>
 
 </resources>
