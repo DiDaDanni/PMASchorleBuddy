@@ -4,6 +4,8 @@
     <string name="title_activity_preferences">Profil</string>
     <string name="picture">Picture</string>
 
+    <string name="event_name">EventName</string>
+
     <string name="start">Start:</string>
     <string name="duration">Dauer:</string>
     <string name="sober">Nüchtern in:</string>
