@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="3"
-        android:rowCount="2">
+        android:rowCount="3">
         <TextView
             android:id="@+id/txtview_status"
             android:text="@string/side_content_1"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_column="0"
-            android:layout_rowSpan="2"
+            android:layout_rowSpan="3"
             android:layout_row="0"
           />
 
@@ -50,20 +50,29 @@
             android:layout_row="1"
             android:textColor="@color/red"
            />
+        <Button
+            android:id="@+id/reset"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_column="1"
+            android:layout_row="2"
+            android:text="reset"
+            android:onClick="onResetClick"/>
 
         <TableLayout
             android:id="@+id/table"
             android:layout_column="2"
-            android:layout_rowSpan="2"
+            android:layout_rowSpan="3"
             android:layout_width="287dp"
             android:layout_height="118dp"
             android:layout_row="0">
             <TableRow>
                 <TextView
                     android:id="@+id/name"
-                    android:text="@string/profile_name"
                     android:layout_column="0"
+                    android:layout_width="wrap_content"
                     android:layout_marginEnd="10dp"
+                    android:inputType="textNoSuggestions"
                     />
                 <TextView
                     android:id="@+id/date"
@@ -95,6 +104,14 @@
                     android:text="@string/sober"/>
                 <TextView
                     android:id="@+id/sober"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:id="@+id/soberAtLabel"
+                    android:text="@string/soberAt"/>
+                <TextView
+                    android:id="@+id/soberAt"/>
             </TableRow>
         </TableLayout>
     </GridLayout>
