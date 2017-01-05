@@ -1,50 +1,110 @@
 package com.example.lena.schorlebuddy;
 
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.format.DateFormat;
-import android.view.View;
+import android.os.Environment;
 import android.support.design.widget.NavigationView;
+import android.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Date;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import static com.example.lena.schorlebuddy.CalculateFunction.durationRunning;
+import static com.example.lena.schorlebuddy.CalculateFunction.firstTime;
+import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
+import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
+import static com.example.lena.schorlebuddy.MainFragment.NAME;
+import static com.example.lena.schorlebuddy.MainFragment.PROFILE;
+import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
+import static com.example.lena.schorlebuddy.MainFragment.START;
+import static com.example.lena.schorlebuddy.MainFragment.myDurationView;
+import static com.example.lena.schorlebuddy.MainFragment.myNameView;
+import static com.example.lena.schorlebuddy.MainFragment.myProfileImage;
+import static com.example.lena.schorlebuddy.MainFragment.myPromilleView;
+import static com.example.lena.schorlebuddy.MainFragment.mySoberAtView;
+import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
+import static com.example.lena.schorlebuddy.MainFragment.myStartView;
+import static com.example.lena.schorlebuddy.MainFragment.myTexteinblendungenView;
+import static com.example.lena.schorlebuddy.MainFragment.username;
+import static com.example.lena.schorlebuddy.Threads.mySoberThread;
+import static com.example.lena.schorlebuddy.Threads.refreshThread;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-        TextView textview;
+        implements NavigationView.OnNavigationItemSelectedListener{
+
+    //sd card
+    //File sdCardDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+    //File profilePic = new File(sdCardDirectory +"/schorleBuddy_pic");
+    boolean success = false;
+    Bitmap image;
+
+    static boolean ok = false;
+
+    public static String path;
+
+    //asyncTask
+    public static boolean asyncTaskActive = false;
+    public static Double erg = 0.00;
+
+    MainFragment mainFragment;
     static final int PROFILE_PIC_REQUEST = 1;
     static final int DIARY_PIC_REQUEST = 2;
+
+    public static class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
+
+        @Override
+        protected String doInBackground(String... drink) {
+            asyncTaskActive = false;
+            Double result = CalculateFunction.calcPromille(drink[0]);
+            erg += result;
+            erg = Math.round(100.0 * erg) / 100.0;      //auf 2 nach Kommastellen runden
+            return erg.toString();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress  ) {
+            // ...
+        }
+
+        @Override
+        protected void onPostExecute(String promille) {
+            myPromilleView.setText(""+promille+"‰");
+        }
+    }
+
+    //ImageButton bierBtn;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState == null){
+            mainFragment = new MainFragment();
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.app_frame, mainFragment, "MainFragment");
+            fragmentTransaction.commit();
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Date d = new Date();
-        CharSequence s  = DateFormat.format("d MMMM yyyy ", d.getTime());
-        textview = (TextView)findViewById(R.id.date);
-        textview.setText(s);
-
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -54,12 +114,83 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+}
+
+    public void onResetClick(View view){
+        myPromilleView.setText("");
+        myStartView.setText("");
+        durationRunning = false;
+        soberRunning = false;
+        mySoberAtView.setText("");
+        myDurationView.setText("");
+        mySoberView.setText("");
+        firstTime = true;
+    }
+
+    public void savePic(String path){
+        File profilePic = new File(path);
+        if(profilePic.mkdirs()){
+            FileOutputStream outputStream;
+
+            try {
+                outputStream = new FileOutputStream(profilePic);
+                image.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+
+                outputStream.flush();
+                outputStream.close();
+                success = true;
+            }catch (FileNotFoundException e){
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        if (success){
+            Toast.makeText(this, "ProfilePicture saved with success", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(this, "Error during saving ProfilePicture", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onImageButtonClick(View view)
     {
-        //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "clicked ImageButton "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
+        soberRunning = false;
+        myTexteinblendungenView.setText("");
+        if(CalculateFunction.gender == 0 || CalculateFunction.weight == 0)
+        {
+            //nur wenn beides ausgewählt kann berechnung starten
+            DialogFragment alertDialog = new AlertDialogFragment();
+            alertDialog.show(getFragmentManager(),"dialog");
+        }
+
+        else{
+
+            if (asyncTaskActive)
+                Toast.makeText(this, "Computation Running", Toast.LENGTH_SHORT).show();
+            else {
+                //Call AsyncTask
+                new CalculatePromilleTask().execute(String.valueOf(view.getTag()));
+                asyncTaskActive = true;
+            }
+            //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "consumed "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
+
+            CalculateFunction.startThreads();
+        }
+
+    }
+
+    public void onPlusButtonClick(View view){
+        DialogFragment drinkDialog = new DrinkDialogFragment();
+        drinkDialog.show(getFragmentManager(),"drinkDialog");
+    }
+
+    public void onWaterButtonClick(View view){
+        DialogFragment drinkDialog = new WaterDialogFragment();
+        drinkDialog.show(getFragmentManager(),"waterDialog");
     }
 
     public void onProfileButtonClick(View view)
@@ -77,17 +208,19 @@ public class MainActivity extends AppCompatActivity
     public void onMapsButtonClick(View view)
     {
         String uri = "http://maps.google.com/maps";
-        Intent mapsIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
+        Intent mapsIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         startActivity(mapsIntent);
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode){
+        switch (requestCode) {
             case PROFILE_PIC_REQUEST:
                 if (data.hasExtra("data")) {
-                    Bitmap image = (Bitmap) data.getExtras().get("data");
-                    ImageButton imagebtn = (ImageButton) findViewById(R.id.imgBtn_profile);
-                    imagebtn.setImageBitmap(image);
+                    image = (Bitmap) data.getExtras().get("data");
+                    path = data.getData().getPath();
+                    myProfileImage.setImageBitmap(image);
+                    savePic(path);
 //              BitmapDrawable drawable_bitmap = new BitmapDrawable(getResources(), image);
 //              imagebtn.setBackground(drawable_bitmap);
                 }
@@ -95,12 +228,13 @@ public class MainActivity extends AppCompatActivity
             case DIARY_PIC_REQUEST:
                 //bild an diary senden
                 break;
-            default:break;
+            default:
+                break;
         }
-
-
     }
-    @Override
+
+
+        @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -110,45 +244,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.profil) {
+            // Handle the profil action
+            startActivity(new Intent(this, ProfilSettingsActivity.class));
+            return true;
+        } else if (id == R.id.getraenke) {
+            startActivity(new Intent(this, GetraenkeSettingsActivity.class));
+            return true;
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.export) {
 
         }
 
@@ -157,6 +267,17 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //save values
+    protected void onStop() {
+        super.onStop();
+
+        SharedPreferences sharedPrefs = getSharedPreferences(FILENAME, 0);
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(PROMILLE, myPromilleView.getText().toString());
+        editor.putString(START, myStartView.getText().toString());
+        editor.putString(PROFILE, path);
+        editor.apply(); //apply besser als commit da es im Hintergrund läuft
+    }
 }
 
 
