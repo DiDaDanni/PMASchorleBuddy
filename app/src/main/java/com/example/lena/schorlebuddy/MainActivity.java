@@ -16,7 +16,11 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import android.provider.Settings;
+
+import android.os.Environment;
+
 import android.support.design.widget.NavigationView;
 import android.app.FragmentTransaction;
 import android.support.v4.app.ActivityCompat;
@@ -34,6 +38,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -47,20 +52,46 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import static com.example.lena.schorlebuddy.CalculateFunction.durationRunning;
+import static com.example.lena.schorlebuddy.CalculateFunction.firstTime;
+
 import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
 import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
+import static com.example.lena.schorlebuddy.MainFragment.NAME;
+import static com.example.lena.schorlebuddy.MainFragment.PROFILE;
 import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
 import static com.example.lena.schorlebuddy.MainFragment.START;
+import static com.example.lena.schorlebuddy.MainFragment.myDurationView;
+import static com.example.lena.schorlebuddy.MainFragment.myNameView;
+import static com.example.lena.schorlebuddy.MainFragment.myProfileImage;
 import static com.example.lena.schorlebuddy.MainFragment.myPromilleView;
+import static com.example.lena.schorlebuddy.MainFragment.mySoberAtView;
+import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
 import static com.example.lena.schorlebuddy.MainFragment.myStartView;
 import static com.example.lena.schorlebuddy.MainFragment.myTexteinblendungenView;
+import static com.example.lena.schorlebuddy.MainFragment.username;
+import static com.example.lena.schorlebuddy.Threads.mySoberThread;
+import static com.example.lena.schorlebuddy.Threads.refreshThread;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener{
 
-    //start
-    public static long startTime = 0;
+    //sd card
+    //File sdCardDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+    //File profilePic = new File(sdCardDirectory +"/schorleBuddy_pic");
+    boolean success = false;
+    Bitmap image;
+
+    static boolean ok = false;
+
+    public static String path;
 
     //asyncTask
     public static boolean asyncTaskActive = false;
@@ -139,6 +170,46 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 }
+
+    public void onResetClick(View view){
+        myPromilleView.setText("");
+        myStartView.setText("");
+        durationRunning = false;
+        soberRunning = false;
+        mySoberAtView.setText("");
+        myDurationView.setText("");
+        mySoberView.setText("");
+        firstTime = true;
+    }
+
+    public void savePic(String path){
+        File profilePic = new File(path);
+        if(profilePic.mkdirs()){
+            FileOutputStream outputStream;
+
+            try {
+                outputStream = new FileOutputStream(profilePic);
+                image.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+
+                outputStream.flush();
+                outputStream.close();
+                success = true;
+            }catch (FileNotFoundException e){
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        if (success){
+            Toast.makeText(this, "ProfilePicture saved with success", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(this, "Error during saving ProfilePicture", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void onImageButtonClick(View view)
     {
         soberRunning = false;
@@ -201,13 +272,18 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
+
+    @Override
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case PROFILE_PIC_REQUEST:
                 if (data.hasExtra("data")) {
-                    Bitmap image = (Bitmap) data.getExtras().get("data");
-                    ImageButton imagebtn = (ImageButton) findViewById(R.id.imgBtn_profile);
-                    imagebtn.setImageBitmap(image);
+                    image = (Bitmap) data.getExtras().get("data");
+                    path = data.getData().getPath();
+                    myProfileImage.setImageBitmap(image);
+                    savePic(path);
 //              BitmapDrawable drawable_bitmap = new BitmapDrawable(getResources(), image);
 //              imagebtn.setBackground(drawable_bitmap);
                 }
@@ -477,6 +553,7 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(PROMILLE, myPromilleView.getText().toString());
         editor.putString(START, myStartView.getText().toString());
+        editor.putString(PROFILE, path);
         editor.apply(); //apply besser als commit da es im Hintergrund läuft
     }
 }
