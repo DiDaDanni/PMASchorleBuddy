@@ -17,11 +17,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-
-import android.provider.Settings;
-
 import android.os.Environment;
-
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.app.FragmentTransaction;
 import android.support.v4.app.ActivityCompat;
@@ -59,44 +56,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import static com.example.lena.schorlebuddy.CalculateFunction.durationRunning;
-import static com.example.lena.schorlebuddy.CalculateFunction.firstTime;
-
 import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
 import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
-import static com.example.lena.schorlebuddy.MainFragment.PROFILE;
 import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
 import static com.example.lena.schorlebuddy.MainFragment.START;
-import static com.example.lena.schorlebuddy.MainFragment.myDurationView;
-import static com.example.lena.schorlebuddy.MainFragment.myNameView;
-import static com.example.lena.schorlebuddy.MainFragment.myProfileImage;
 import static com.example.lena.schorlebuddy.MainFragment.myPromilleView;
-import static com.example.lena.schorlebuddy.MainFragment.mySoberAtView;
-import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
 import static com.example.lena.schorlebuddy.MainFragment.myStartView;
 import static com.example.lena.schorlebuddy.MainFragment.myTexteinblendungenView;
-import static com.example.lena.schorlebuddy.MainFragment.username;
-import static com.example.lena.schorlebuddy.Threads.mySoberThread;
-import static com.example.lena.schorlebuddy.Threads.refreshThread;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener{
 
-    //sd card
-    //File sdCardDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-    //File profilePic = new File(sdCardDirectory +"/schorleBuddy_pic");
-    boolean success = false;
-    Bitmap image;
-
-    static boolean ok = false;
-
+    //start
+    public static long startTime = 0;
 
     //asyncTask
     public static boolean asyncTaskActive = false;
@@ -188,46 +161,6 @@ public class MainActivity extends AppCompatActivity
 
 
 }
-
-    public void onResetClick(View view){
-        myPromilleView.setText("");
-        myStartView.setText("");
-        durationRunning = false;
-        soberRunning = false;
-        mySoberAtView.setText("");
-        myDurationView.setText("");
-        mySoberView.setText("");
-        firstTime = true;
-    }
-
-    public void savePic(String path){
-        File profilePic = new File(path);
-        if(profilePic.mkdirs()){
-            FileOutputStream outputStream;
-
-            try {
-                outputStream = new FileOutputStream(profilePic);
-                image.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-
-                outputStream.flush();
-                outputStream.close();
-                success = true;
-            }catch (FileNotFoundException e){
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        if (success){
-            Toast.makeText(this, "ProfilePicture saved with success", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(this, "Error during saving ProfilePicture", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     //check file permissions oncreate()
     private void checkFilePermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -310,18 +243,13 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
-    @Override
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case PROFILE_PIC_REQUEST:
                 if (data.hasExtra("data")) {
-                    image = (Bitmap) data.getExtras().get("data");
-                    path = data.getData().getPath();
-                    myProfileImage.setImageBitmap(image);
-                    savePic(path);
+                    Bitmap image = (Bitmap) data.getExtras().get("data");
+                    ImageButton imagebtn = (ImageButton) findViewById(R.id.imgBtn_profile);
+                    imagebtn.setImageBitmap(image);
 //              BitmapDrawable drawable_bitmap = new BitmapDrawable(getResources(), image);
 //              imagebtn.setBackground(drawable_bitmap);
                 }
@@ -415,13 +343,10 @@ public class MainActivity extends AppCompatActivity
                         new String[]{Manifest.permission.READ_CONTACTS},
                         MY_PERMISSION_REQUEST_READ_FINE_LOCATION);
 
-                // MY_PERMISSION_REQUEST_READ_FINE_LOCATION is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
         }
 
-        //createDiaryFile();
+
         startLocationUpdates();
         mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
@@ -436,26 +361,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //ist eigentlich unnötig, datei und pfad wird beim schreiben eh erstellt
-    public void createDiaryFile() {
-        //Datei erstellen (Diary)
-
-        //File file = new File (path, "Diary.txt");
-
-        /*try {
-            FileOutputStream f = new FileOutputStream(file);
-            PrintWriter pw = new PrintWriter(f);
-            pw.println("SchorleBuddy\n\n");
-            pw.flush();
-            pw.close();
-            f.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.i(TAG, " File not found!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-    }
 
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -476,7 +381,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void startLocationUpdates() {
-        Log.d(TAG, "in startLocationUpdates");
         // Create the location request
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -503,19 +407,14 @@ public class MainActivity extends AppCompatActivity
                         new String[]{Manifest.permission.READ_CONTACTS},
                         MY_PERMISSION_REQUEST_READ_FINE_LOCATION);
 
-                // MY_PERMISSION_REQUEST_READ_FINE_LOCATION is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
                 mLocationRequest, this);
-        Log.d(TAG, "after requestlocationupdates and checkselfpermissions");
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i(TAG, "Connection Suspended");
         mGoogleApiClient.connect();
     }
 
@@ -546,39 +445,20 @@ public class MainActivity extends AppCompatActivity
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         //Call getAddressFromLocation to start geocoder (Location->Address)
         getAddressFormLocation();
+        //checkForFile();
         appendNewLocation(diaryAddress, diaryLongitude, diaryLatitude, mLastUpdateTime);
 
 
     }
 
-    //hab schon alles mögliche ausprobiert, aber der text in der Diary.txt datei wird immer übersschrieben...
+    //write to file
     public void appendNewLocation(String diaryAddress, double diaryLongitude, double diaryLatitude, String mLastUpdateTime){
-        File file = new File (path, "Diary.txt");
-        if(file.exists())
-        {
-            /*try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
-                out.println("the text");
-            }catch (IOException e) {
-                System.err.println(e);
-            }
-            try
-            {
-                FileOutputStream fOut = new FileOutputStream(file);
-                OutputStreamWriter myOutWriter = new OutputStreamWriter(openFileOutput("Diary.txt", MODE_APPEND));
-                myOutWriter.append("This was your Location at: " + mLastUpdateTime + "\n");
-                myOutWriter.append("----------------------------------------------------------------------------------------\n");
-                myOutWriter.append("Latitude:   " + diaryLatitude + "\n");
-                myOutWriter.append("Longitude:  " + diaryLongitude + "\n");
-                myOutWriter.append("Address:    " + diaryAddress + "\n\n\n\n");
-                myOutWriter.close();
-                fOut.close();
-            } catch(Exception e)
-            {
 
-            }*/
-            try
-            {
-                FileOutputStream fOut = new FileOutputStream("Diary.txt", true);
+
+
+            try {
+                File file = new File (path, "Diary.txt");
+                FileOutputStream fOut = new FileOutputStream(file, true);
                 OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
                 myOutWriter.write("This was your Location at: " + mLastUpdateTime + "\n");
                 myOutWriter.write("----------------------------------------------------------------------------------------\n");
@@ -588,19 +468,12 @@ public class MainActivity extends AppCompatActivity
                 myOutWriter.flush();
                 myOutWriter.close();
                 fOut.close();
-            } catch(Exception e)
-            {
-
-            }
-        }
-        else
-        {
-            try {
-                file.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+
+
+
     }
 
     //get address from location.. display address and make a toast
@@ -684,11 +557,11 @@ public class MainActivity extends AppCompatActivity
             mGoogleApiClient.disconnect();
         }
 
+
         SharedPreferences sharedPrefs = getSharedPreferences(FILENAME, 0);
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(PROMILLE, myPromilleView.getText().toString());
         editor.putString(START, myStartView.getText().toString());
-        editor.putString(PROFILE, path);
         editor.apply(); //apply besser als commit da es im Hintergrund läuft
     }
 }
