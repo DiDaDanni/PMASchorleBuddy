@@ -13,7 +13,7 @@ import java.util.Date;
 
 public class MainFragment extends Fragment {
     TextView textview;
-    public static TextView myPromilleView, myStartView, myDurationView, mySoberView, myTexteinblendungenView;
+    public static TextView myPromilleView, myStartView, myDurationView, mySoberView, myTexteinblendungenView, myNameView;
     public static final String FILENAME = "PreferencesFilename";
     public static final String PROMILLE = "Promille";
     public static final String START = "Start";
@@ -35,6 +35,9 @@ public class MainFragment extends Fragment {
         //get old Promille value
         myPromilleView = (TextView)view.findViewById(R.id.txtview_promille);
         myPromilleView.setText(sharedPrefs.getString(PROMILLE, ""));
+
+        //get username value
+        myNameView = (TextView)view.findViewById(R.id.name);
 
         //get old start time
         myStartView = (TextView)view.findViewById(R.id.startTime);
