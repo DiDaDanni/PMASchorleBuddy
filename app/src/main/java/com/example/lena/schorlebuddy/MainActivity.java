@@ -70,7 +70,6 @@ import static com.example.lena.schorlebuddy.CalculateFunction.firstTime;
 
 import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
 import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
-import static com.example.lena.schorlebuddy.MainFragment.NAME;
 import static com.example.lena.schorlebuddy.MainFragment.PROFILE;
 import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
 import static com.example.lena.schorlebuddy.MainFragment.START;
@@ -98,7 +97,6 @@ public class MainActivity extends AppCompatActivity
 
     static boolean ok = false;
 
-    public static String path;
 
     //asyncTask
     public static boolean asyncTaskActive = false;
