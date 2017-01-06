@@ -89,11 +89,12 @@ public class MainActivity extends AppCompatActivity
     private com.google.android.gms.location.LocationListener locListener;
     private long UPDATE_INTERVAL = 10 * 1000;/*(1000 * 60);   x * (minute)  */
     private long FASTEST_INTERVAL = 3 * 1000;/* (1000 * 60);  x * (minute)  */
+    public boolean mRequestingLocationUpdates = false;
 
     //declaration for diary
     String folder_main = "SchorleBuddy";
     private final int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    public static String path = "hallo";
+    public static String path = "";
     public static double diaryLatitude;
     public static double diaryLongitude;
     public static String mLastUpdateTime;
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //connect to GoogleApiCLient
+        //GoogleApiCLient
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -240,6 +241,8 @@ public class MainActivity extends AppCompatActivity
 
     public void onDiaryButtonClick(View view){
         //Display past events (drinks, locations)
+        Intent diaryIntent = new Intent(getApplicationContext(), DiaryActivity.class);
+        startActivity(diaryIntent);
     }
 
 
@@ -271,6 +274,14 @@ public class MainActivity extends AppCompatActivity
             mGoogleApiClient.connect();
             //get Time and assign to startTime in content_main
        //}
+    }
+
+    public void onStopButtonClick(View view){
+        if (mGoogleApiClient.isConnected()) {
+            stopLocationUpdates();
+            mGoogleApiClient.disconnect();
+            Toast.makeText(this, "Location Updates beendet", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void createDirectory() {
@@ -337,8 +348,6 @@ public class MainActivity extends AppCompatActivity
 
             } else {
 
-                // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.READ_CONTACTS},
                         MY_PERMISSION_REQUEST_READ_FINE_LOCATION);
@@ -381,6 +390,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void startLocationUpdates() {
+        mRequestingLocationUpdates = true;
         // Create the location request
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -461,7 +471,7 @@ public class MainActivity extends AppCompatActivity
                 FileOutputStream fOut = new FileOutputStream(file, true);
                 OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
                 myOutWriter.write("This was your Location at: " + mLastUpdateTime + "\n");
-                myOutWriter.write("----------------------------------------------------------------------------------------\n");
+                myOutWriter.write("--------------------------------------------------------------------------------\n");
                 myOutWriter.write("Latitude:   " + diaryLatitude + "\n");
                 myOutWriter.write("Longitude:  " + diaryLongitude + "\n");
                 myOutWriter.write("Address:    " + diaryAddress + "\n\n\n\n");
@@ -545,8 +555,25 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+        mRequestingLocationUpdates = false;
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        Toast.makeText(this, "Stopped Location Updates", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Toast.makeText(this, "onResume", Toast.LENGTH_SHORT).show();
+        if (mGoogleApiClient.isConnected()/* && !mRequestingLocationUpdates*/) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        Toast.makeText(this, "onPause", Toast.LENGTH_SHORT).show();
+        mRequestingLocationUpdates = false;
     }
 
     //save values
