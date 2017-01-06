@@ -15,6 +15,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.provider.Settings;
@@ -38,14 +39,20 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,7 +70,6 @@ import static com.example.lena.schorlebuddy.CalculateFunction.firstTime;
 
 import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
 import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
-import static com.example.lena.schorlebuddy.MainFragment.NAME;
 import static com.example.lena.schorlebuddy.MainFragment.PROFILE;
 import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
 import static com.example.lena.schorlebuddy.MainFragment.START;
@@ -91,7 +97,6 @@ public class MainActivity extends AppCompatActivity
 
     static boolean ok = false;
 
-    public static String path;
 
     //asyncTask
     public static boolean asyncTaskActive = false;
@@ -108,10 +113,18 @@ public class MainActivity extends AppCompatActivity
     private LocationManager locationManager;
     private LocationRequest mLocationRequest;
     private static final String TAG = "MainActivity";
-    private com.google.android.gms.location.LocationListener listener;
-    private long UPDATE_INTERVAL = 10 * (1000 * 60); /*  x * (minute)  */
-    private long FASTEST_INTERVAL = 3 * (1000 * 60); /*  x * (minute)  */
+    private com.google.android.gms.location.LocationListener locListener;
+    private long UPDATE_INTERVAL = 10 * 1000;/*(1000 * 60);   x * (minute)  */
+    private long FASTEST_INTERVAL = 3 * 1000;/* (1000 * 60);  x * (minute)  */
 
+    //declaration for diary
+    String folder_main = "SchorleBuddy";
+    private final int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    public static String path = "hallo";
+    public static double diaryLatitude;
+    public static double diaryLongitude;
+    public static String mLastUpdateTime;
+    public static String diaryAddress;
 
     public static class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
 
@@ -169,6 +182,11 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        checkFilePermissions();
+
+
+
 }
 
     public void onResetClick(View view){
@@ -208,6 +226,26 @@ public class MainActivity extends AppCompatActivity
         else{
             Toast.makeText(this, "Error during saving ProfilePicture", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    //check file permissions oncreate()
+    private void checkFilePermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int hasWriteExternalStoragePermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (hasWriteExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+            }
+        }
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
     }
 
     public void onImageButtonClick(View view)
@@ -297,43 +335,56 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onStartButtonClick(View view){
-        checkLocation();
-        mGoogleApiClient.connect();
-        //get Time and assign to startTime in content_main
+        //get time , date and name from mainFragment and create directory for diary and pictures in SchorleBuddy (created in onCreate())
+        //stimmen date und name? name muss eigentlich aus sharedPreferences ausgelesen werden...
+
+            createDirectory();
+            checkLocation();
+            mGoogleApiClient.connect();
+            //get Time and assign to startTime in content_main
+       //}
     }
 
+    public void createDirectory() {
+        //create SchorleBuddy directory in external storage (does not have to be sd card) path: /storage/emulated/0/SchorleBuddy
+
+        TextView date = mainFragment.textview;
+        TextView name = mainFragment.myNameView;
+        //TextView time = mainFragment.myStartView; // not jet working
+        String stringName = name.getText().toString();
+        String stringDate = date.getText().toString();
+        //String stringTime = time.getText().toString();
+
+        if (stringName.isEmpty()) {
+            DialogFragment nameDialog = new NameAlertDialogFragment();
+            nameDialog.show(getFragmentManager(), "nameDialog");
+        } else/* if(!stringName.isEmpty())*/ {
+            String DateTimeName = stringDate + stringName;
+
+            if (isExternalStorageWritable()) {
+                File f = new File(Environment.getExternalStorageDirectory() + "/" + folder_main, DateTimeName);  //folder_main = "SchorleBuddy";
+                path = f.getPath();
+                if (!f.exists()) {
+                    f.mkdirs();
+                }
+            }
+
+        }
+    }
+
+
+
     private boolean checkLocation() {
-        if(!isLocationEnabled())
-            //promts user to activate locationservises
-            showAlert();
+        if(!isLocationEnabled()) {
+            //promts user to activate locationservices
+            DialogFragment locationDialog = new LocationAlertDialogFragment();
+            locationDialog.show(getFragmentManager(), "locationDialog");
+        }
         return isLocationEnabled();
     }
 
 
-    private void showAlert() {
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Enable Location")
-                .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
-                        "use this app")
-                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
-                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(myIntent);
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
-                    }
-                });
-        dialog.show();
-    }
-
     private boolean isLocationEnabled() {
-        Log.d(TAG, "in isLocationEnabled");
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
@@ -370,6 +421,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+        //createDiaryFile();
         startLocationUpdates();
         mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
@@ -377,11 +429,32 @@ public class MainActivity extends AppCompatActivity
             startLocationUpdates();
         }
         if (mLocation != null) {
-            //double latitude = mLocation.getLatitude();
-            //double longitude = mLocation.getLongitude();
+
         } else {
              Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    //ist eigentlich unnötig, datei und pfad wird beim schreiben eh erstellt
+    public void createDiaryFile() {
+        //Datei erstellen (Diary)
+
+        //File file = new File (path, "Diary.txt");
+
+        /*try {
+            FileOutputStream f = new FileOutputStream(file);
+            PrintWriter pw = new PrintWriter(f);
+            pw.println("SchorleBuddy\n\n");
+            pw.flush();
+            pw.close();
+            f.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.i(TAG, " File not found!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
     }
 
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -457,21 +530,77 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //display new location in textviews and make a toast, also start geocoder
+    //display new location as toast, also start geocoder
     @Override
     public void onLocationChanged(Location location) {
-
-        Log.d(TAG, "in onLocationChanged");
+        Log.d(TAG, "in onLochationChanged");
+        diaryLatitude = location.getLatitude();
+        diaryLongitude = location.getLongitude();
         String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
        // mLatitudeTextView.setText(String.valueOf(location.getLatitude()));  //is never displayed in layout (UI) should be saved to log(diary)
        // mLongitudeTextView.setText(String.valueOf(location.getLongitude() ));   //is never displayed in layout (UI) should be saved to log(diary)
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        //get time of update
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         //Call getAddressFromLocation to start geocoder (Location->Address)
         getAddressFormLocation();
-        // You can now create a LatLng Object for use with maps
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        appendNewLocation(diaryAddress, diaryLongitude, diaryLatitude, mLastUpdateTime);
+
+
+    }
+
+    //hab schon alles mögliche ausprobiert, aber der text in der Diary.txt datei wird immer übersschrieben...
+    public void appendNewLocation(String diaryAddress, double diaryLongitude, double diaryLatitude, String mLastUpdateTime){
+        File file = new File (path, "Diary.txt");
+        if(file.exists())
+        {
+            /*try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
+                out.println("the text");
+            }catch (IOException e) {
+                System.err.println(e);
+            }
+            try
+            {
+                FileOutputStream fOut = new FileOutputStream(file);
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(openFileOutput("Diary.txt", MODE_APPEND));
+                myOutWriter.append("This was your Location at: " + mLastUpdateTime + "\n");
+                myOutWriter.append("----------------------------------------------------------------------------------------\n");
+                myOutWriter.append("Latitude:   " + diaryLatitude + "\n");
+                myOutWriter.append("Longitude:  " + diaryLongitude + "\n");
+                myOutWriter.append("Address:    " + diaryAddress + "\n\n\n\n");
+                myOutWriter.close();
+                fOut.close();
+            } catch(Exception e)
+            {
+
+            }*/
+            try
+            {
+                FileOutputStream fOut = new FileOutputStream("Diary.txt", true);
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+                myOutWriter.write("This was your Location at: " + mLastUpdateTime + "\n");
+                myOutWriter.write("----------------------------------------------------------------------------------------\n");
+                myOutWriter.write("Latitude:   " + diaryLatitude + "\n");
+                myOutWriter.write("Longitude:  " + diaryLongitude + "\n");
+                myOutWriter.write("Address:    " + diaryAddress + "\n\n\n\n");
+                myOutWriter.flush();
+                myOutWriter.close();
+                fOut.close();
+            } catch(Exception e)
+            {
+
+            }
+        }
+        else
+        {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     //get address from location.. display address and make a toast
@@ -500,8 +629,8 @@ public class MainActivity extends AppCompatActivity
 
                 //mAddressTextView.setText(address + " " + city + " " + country); //is never displayed in layout (UI) should be saved to log(diary)
 
-                String msg ="Updated Address: " + address + " " + city + " " + country;
-                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                diaryAddress = address + " " +postalCode + " " + city + " " + country;
+                //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -542,10 +671,16 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
     //save values
     protected void onStop() {
         super.onStop();
         if (mGoogleApiClient.isConnected()) {
+            stopLocationUpdates();
             mGoogleApiClient.disconnect();
         }
 
