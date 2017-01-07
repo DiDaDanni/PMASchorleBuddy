@@ -19,10 +19,10 @@ import static com.example.lena.schorlebuddy.Threads.*;
  * Created by Daniela on 06.12.2016.
  */
 
-class CalculateFunction {
+public class CalculateFunction {
 
-    static int gender;   //1=weiblich,2=männlich
-    static int weight;
+    public static int gender;   //1=weiblich,2=männlich
+    public static int weight;
 
     private static final double PER_MILLI_SEC_FEMININ = 0.1/3600000;    //alkoholabbau pro millisekunde
     private static final double PER_MILLI_SEC_MASCULIN = 0.2/3600000;
@@ -31,9 +31,9 @@ class CalculateFunction {
     static boolean firstTime = true;
 
     //duration
-    private static long diff = 0;
-    static long durationSec, durationMin, durationHour;
-    static boolean durationRunning = false;
+    public static long diff = 0;
+    public static long durationSec, durationMin, durationHour;
+    public static boolean durationRunning = false;
 
     //sober
     static boolean soberRunning = false;
