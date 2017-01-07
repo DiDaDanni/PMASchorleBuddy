@@ -131,13 +131,35 @@
         android:layout_width="match_parent"
         android:layout_height="4dp"
         android:background="@android:color/darker_gray"/>
-    <TextView
-        android:id="@+id/txtview_blend"
+    <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="8pt"
-        android:textAlignment="center"
-        />
+        android:columnCount="2"
+        android:rowCount="1">
+        <ImageButton
+            android:id="@+id/cheers"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_width="50dp"
+            android:layout_gravity="fill_vertical"
+            android:src="@drawable/cheers40"
+            android:background="#0000"
+            android:textStyle="bold"
+            android:onClick="onCheersButtonClick"/>
+        <TextView
+            android:id="@+id/txtview_blend"
+            android:layout_row="0"
+            android:layout_column="1"
+            android:layout_gravity="fill"
+            android:gravity="center_vertical"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="Cheers!!"
+            android:textSize="8pt" />
+
+    </GridLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="4dp"
@@ -284,7 +306,7 @@
     <GridLayout
         android:id="@+id/grid_action"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="208dp"
         android:columnCount="2"
         android:rowCount="1">
 

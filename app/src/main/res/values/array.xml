@@ -46,4 +46,25 @@
         <item>Wasser 0,5l</item>
     </string-array>
 
+    <string-array name="texteinblendungen">
+        <item>       The Bible is full of wine.</item>
+        <item>       "My Grandmother is over eighty and still doesnt need glasses. Drinks right out of the bottle."</item>
+        <item>       “May the best of our past be the worst of our future.”</item>
+        <item>       “If beer were an ocean, and I was a duck. Id swim to the bottom to drink my way up."</item>
+        <item>       Heres to the nights well never remember with the friends well never forget!</item>
+        <item>       Wer Hopfen säht, wird Bier ernten.</item>
+        <item>       Flüssig Brot macht Wangen rot!</item>
+        <item>       Zwischen Leber und Milz passt immer noch ein Pils.</item>
+        <item>       Iss, was gar ist, trink, was klar ist, red, was wahr ist.</item>
+        <item>       Melkt der Bauer seinen Stier, trank der Trottel zu viel Bier.</item>
+        <item>       Das erste Bier, das löscht den Durst. Ein zweites stimmt mich heiter. Nach dreien ist mir alles Wurst, drum sauf ich einfach weiter.</item>
+        <item>       Auch Wasser wird zum edlen Tropfen, mischt man es mit Malz und Hopfen.</item>
+        <item>       Jeder muss an etwas glauben. Ich glaub, ich trink noch Einen!</item>
+        <item>       Morgens ein Bier und der Tag gehört Dir!</item>
+        <item>       Gott erfand den Wein, Gott erfand das Bier, doch den Schnaps den brannten wir.</item>
+        <item>       Meine Definition von Glück? Keine Termine und leicht einen sitzen. - Harald Juhnke</item>
+        <item>       Genug getrunken, jetzt wird gesoffen! </item>
+        <item>       Drinking won’t solve your problems, but it will give you lots of interesting ones.</item>
+    </string-array>
+
 </resources>

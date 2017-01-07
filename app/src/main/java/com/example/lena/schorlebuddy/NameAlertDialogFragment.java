@@ -9,6 +9,9 @@ import android.os.Bundle;
 
 /**
  * Created by Lena on 05.01.2017.
+ *
+ * Calld: click on START && username not set
+ * to create diary entries username has to be set
  */
 
 public class NameAlertDialogFragment extends DialogFragment {

@@ -55,6 +55,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
 import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity
     private com.google.android.gms.location.LocationListener locListener;
     private long UPDATE_INTERVAL = 10 * 1000;/*(1000 * 60);   x * (minute)  */
     private long FASTEST_INTERVAL = 3 * 1000;/* (1000 * 60);  x * (minute)  */
-    public boolean mRequestingLocationUpdates = false;
+    public static boolean startpressed = false;
 
     //declaration for diary
     String folder_main = "SchorleBuddy";
@@ -99,6 +100,11 @@ public class MainActivity extends AppCompatActivity
     public static double diaryLongitude;
     public static String mLastUpdateTime;
     public static String diaryAddress;
+
+    //declaration for cheers
+    private String [] myString;
+    private static final Random rgenerator = new Random();
+    int index = 0;
 
     public static class CalculatePromilleTask extends AsyncTask<String, Integer, String> {
 
@@ -127,6 +133,8 @@ public class MainActivity extends AppCompatActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
         //GoogleApiCLient
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -245,6 +253,16 @@ public class MainActivity extends AppCompatActivity
         startActivity(diaryIntent);
     }
 
+    public void onCheersButtonClick (View view){
+        TextView marque = (TextView) this.findViewById(R.id.txtview_blend);
+        marque.setSelected(true);
+        final TextView tv = (TextView) findViewById(R.id.txtview_blend);
+        myString = getResources().getStringArray(R.array.texteinblendungen);
+        index = rgenerator.nextInt(myString.length);
+        String q = myString[index];
+        tv.setText(q);
+    }
+
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -268,7 +286,7 @@ public class MainActivity extends AppCompatActivity
     public void onStartButtonClick(View view){
         //get time , date and name from mainFragment and create directory for diary and pictures in SchorleBuddy (created in onCreate())
         //stimmen date und name? name muss eigentlich aus sharedPreferences ausgelesen werden...
-
+            startpressed = true;
             createDirectory();
             checkLocation();
             mGoogleApiClient.connect();
@@ -277,10 +295,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onStopButtonClick(View view){
+        startpressed = false;
         if (mGoogleApiClient.isConnected()) {
             stopLocationUpdates();
             mGoogleApiClient.disconnect();
-            Toast.makeText(this, "Location Updates beendet", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Location Updates beendet!\nZum Fortsetzen erneut auf START drücken", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -295,6 +314,7 @@ public class MainActivity extends AppCompatActivity
         //String stringTime = time.getText().toString();
 
         if (stringName.isEmpty()) {
+            startpressed = false;
             DialogFragment nameDialog = new NameAlertDialogFragment();
             nameDialog.show(getFragmentManager(), "nameDialog");
         } else/* if(!stringName.isEmpty())*/ {
@@ -390,7 +410,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void startLocationUpdates() {
-        mRequestingLocationUpdates = true;
         // Create the location request
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -439,18 +458,14 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //display new location as toast, also start geocoder
+    //getting new location data, start geocoder
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "in onLochationChanged");
         diaryLatitude = location.getLatitude();
         diaryLongitude = location.getLongitude();
-        String msg = "Updated Location: " +
-                Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
        // mLatitudeTextView.setText(String.valueOf(location.getLatitude()));  //is never displayed in layout (UI) should be saved to log(diary)
        // mLongitudeTextView.setText(String.valueOf(location.getLongitude() ));   //is never displayed in layout (UI) should be saved to log(diary)
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         //get time of update
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         //Call getAddressFromLocation to start geocoder (Location->Address)
@@ -495,10 +510,7 @@ public class MainActivity extends AppCompatActivity
         double latitude = mLocation.getLatitude();
         double longitude = mLocation.getLongitude();
 
-        Log.e("latitude", "latitude--" + latitude);
-
         try {
-            Log.e("latitude", "inside latitude--" + latitude);
             addresses = geocoder.getFromLocation(latitude, longitude, 1);
 
 
@@ -510,10 +522,9 @@ public class MainActivity extends AppCompatActivity
                 String postalCode = addresses.get(0).getPostalCode();
                 String knownName = addresses.get(0).getFeatureName();
 
-                //mAddressTextView.setText(address + " " + city + " " + country); //is never displayed in layout (UI) should be saved to log(diary)
-
                 diaryAddress = address + " " +postalCode + " " + city + " " + country;
-                //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                String msg = "Standort gespeichert:\n" + diaryAddress;
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -555,16 +566,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void stopLocationUpdates() {
-        mRequestingLocationUpdates = false;
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        Toast.makeText(this, "Stopped Location Updates", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Stopped Location Updates (stopLocationUpdates())", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Toast.makeText(this, "onResume", Toast.LENGTH_SHORT).show();
-        if (mGoogleApiClient.isConnected()/* && !mRequestingLocationUpdates*/) {
+        if (startpressed) {
+            if(!mGoogleApiClient.isConnected()){
+                mGoogleApiClient.connect();
+            }else
             startLocationUpdates();
         }
     }
@@ -573,7 +586,6 @@ public class MainActivity extends AppCompatActivity
     public void onPause(){
         super.onPause();
         Toast.makeText(this, "onPause", Toast.LENGTH_SHORT).show();
-        mRequestingLocationUpdates = false;
     }
 
     //save values
