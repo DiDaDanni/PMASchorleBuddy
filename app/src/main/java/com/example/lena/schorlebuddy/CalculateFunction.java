@@ -10,9 +10,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import static com.example.lena.schorlebuddy.MainActivity.erg;
-import static com.example.lena.schorlebuddy.MainFragment.mySoberAtView;
-import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
-import static com.example.lena.schorlebuddy.MainFragment.myStartView;
+import static com.example.lena.schorlebuddy.MainFragment.*;
 import static com.example.lena.schorlebuddy.Threads.*;
 
 /**
@@ -24,14 +22,17 @@ class CalculateFunction {
     static int gender;   //1=weiblich,2=männlich
     static int weight;
 
-    private static final double PER_MILLI_SEC_FEMININ = 0.1/3600000;    //alkoholabbau pro millisekunde
-    private static final double PER_MILLI_SEC_MASCULIN = 0.2/3600000;
-    private static long milliseconds = 0;
+    static final double PER_MILLI_SEC_FEMININ = 0.1/3600000;    //alkoholabbau pro millisekunde
+    static final double PER_MILLI_SEC_MASCULIN = 0.2/3600000;
+
+    static final double PER_SEC_FEMININ = 0.1/3600;
+    static final double PER_SEC_MASCULIN = 0.2/3600;
+    static long milliseconds = 0;
 
     static boolean firstTime = true;
 
     //duration
-    private static long diff = 0;
+    static long diff = 0;
     static long durationSec, durationMin, durationHour;
     static boolean durationRunning = false;
 
@@ -51,14 +52,18 @@ class CalculateFunction {
 
         double result = 0;
         double alkoholMenge = 0;
+        //tempErg = 0.0;
 
-        if (erg != 0.00){
-            milliseconds = diff - milliseconds;
-            if (gender == 1)
-                erg = erg - milliseconds* PER_MILLI_SEC_FEMININ;
-            else if (gender == 2)
-                erg = erg - milliseconds* PER_MILLI_SEC_MASCULIN;
-        }
+        //abbau ohne thread abbau
+//        if (erg != 0.00){
+//            milliseconds = diff - milliseconds;
+//            if (gender == 1)
+//                erg = erg - milliseconds* PER_MILLI_SEC_FEMININ;
+//            else if (gender == 2)
+//                erg = erg - milliseconds* PER_MILLI_SEC_MASCULIN;
+//        }
+        //if (tempErg != 0.0)
+            erg = tempErg;
 
         switch (drink) {
             case "Bier 0,33l":
@@ -127,7 +132,7 @@ class CalculateFunction {
         durationHour = diff / (60 * 60 *1000);
     }
 
-    private static void soberStartTime(){
+    static void soberStartTime(){
         numberFormat.setRoundingMode(RoundingMode.DOWN);
 
         //Promille Abbau 0,1 weiblich, 0,2 männlich pro Stunde

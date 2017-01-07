@@ -26,21 +26,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import static com.example.lena.schorlebuddy.CalculateFunction.durationRunning;
-import static com.example.lena.schorlebuddy.CalculateFunction.firstTime;
-import static com.example.lena.schorlebuddy.CalculateFunction.soberRunning;
-import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
-import static com.example.lena.schorlebuddy.MainFragment.PROFILE;
-import static com.example.lena.schorlebuddy.MainFragment.PROMILLE;
-import static com.example.lena.schorlebuddy.MainFragment.SOBERAT;
-import static com.example.lena.schorlebuddy.MainFragment.START;
-import static com.example.lena.schorlebuddy.MainFragment.myDurationView;
-import static com.example.lena.schorlebuddy.MainFragment.myProfileImage;
-import static com.example.lena.schorlebuddy.MainFragment.myPromilleView;
-import static com.example.lena.schorlebuddy.MainFragment.mySoberAtView;
-import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
-import static com.example.lena.schorlebuddy.MainFragment.myStartView;
-import static com.example.lena.schorlebuddy.MainFragment.myTexteinblendungenView;
+import static com.example.lena.schorlebuddy.CalculateFunction.*;
+import static com.example.lena.schorlebuddy.MainFragment.*;
+import static com.example.lena.schorlebuddy.Threads.tempErg;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -70,6 +58,7 @@ public class MainActivity extends AppCompatActivity
             asyncTaskActive = false;
             Double result = CalculateFunction.calcPromille(drink[0]);
             erg += result;
+            tempErg = erg;
             erg = Math.round(100.0 * erg) / 100.0;      //auf 2 nach Kommastellen runden
             return erg.toString();
         }
@@ -110,6 +99,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
 }
 
     public void onResetClick(View view){
@@ -123,6 +114,11 @@ public class MainActivity extends AppCompatActivity
             myPromilleView.setText("");
             myStartView.setText("");
             erg = 0.00;
+            tempErg = 0.0;
+
+        Intent stopIntent = new Intent(MainActivity.this, MyService.class);
+        stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
+        startService(stopIntent);
     }
 
     public void savePic(String path){
@@ -176,7 +172,15 @@ public class MainActivity extends AppCompatActivity
             //Toast.makeText(this, "clicked button "+getResources().getResourceName(view.getId()), Toast.LENGTH_SHORT).show();
             Toast.makeText(this, "consumed "+ String.valueOf(view.getTag()), Toast.LENGTH_SHORT).show();
 
-            CalculateFunction.startThreads();
+            if (firstTime){
+                Intent startIntent = new Intent(MainActivity.this, MyService.class);
+                startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+                startService(startIntent);
+            }
+
+            else
+                soberStartTime();
+            //CalculateFunction.startThreads();
         }
 
     }
