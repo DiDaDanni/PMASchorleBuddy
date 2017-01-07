@@ -7,7 +7,7 @@
     <string name="start">Start:</string>
     <string name="duration">Dauer:</string>
     <string name="sober">Nüchtern in:</string>
-    <string name="time_string">%1$s </string>
+    <string name="soberAt">Nüchtern um:</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

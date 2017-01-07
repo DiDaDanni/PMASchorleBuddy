@@ -11,6 +11,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+
+import static com.example.lena.schorlebuddy.MainActivity.ok;
+import static com.example.lena.schorlebuddy.MainFragment.FILENAME;
+import static com.example.lena.schorlebuddy.MainFragment.myNameView;
+import static com.example.lena.schorlebuddy.MainFragment.username;
+
 /**
  * Creates ActionBar with toolbar from app_bar_main which includes content_main
  * content_main is a dummy layout to be replaced by preferenceFragments
@@ -90,6 +96,11 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
                 //if (!value.isEmpty())
                     CalculateFunction.weight = Integer.parseInt(value);
             }
+//            else if (key.equals("username")){
+//                EditTextPreference textPreference = (EditTextPreference)findPreference(key);
+//                String name = textPreference.getText();
+//                username = name;
+//            }
 
         }
 
@@ -101,6 +112,12 @@ public class ProfilSettingsActivity  extends AppCompatActivity {
 
 
                 return;
+            }
+
+            if (key.equals("username")){
+                EditTextPreference textPreference = (EditTextPreference)findPreference(key);
+                String name = textPreference.getText();
+                username = name;
             }
 
             SharedPreferences sharedPrefs = getPreferenceManager().getSharedPreferences();

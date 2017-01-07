@@ -5,10 +5,12 @@ import android.text.format.DateFormat;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.example.lena.schorlebuddy.MainActivity.erg;
-import static com.example.lena.schorlebuddy.MainActivity.startTime;
+import static com.example.lena.schorlebuddy.MainFragment.mySoberAtView;
 import static com.example.lena.schorlebuddy.MainFragment.mySoberView;
 import static com.example.lena.schorlebuddy.MainFragment.myStartView;
 import static com.example.lena.schorlebuddy.Threads.*;
@@ -17,30 +19,35 @@ import static com.example.lena.schorlebuddy.Threads.*;
  * Created by Daniela on 06.12.2016.
  */
 
-public class CalculateFunction {
+class CalculateFunction {
 
-    public static int gender;   //1=weiblich,2=männlich
-    public static int weight;
+    static int gender;   //1=weiblich,2=männlich
+    static int weight;
 
-    static double perMilliSecFeminin = 0.1/3600000;
-    static double perMilliSecMasculin = 0.2/3600000;
-    static long milliseconds = 0;
+    private static final double PER_MILLI_SEC_FEMININ = 0.1/3600000;    //alkoholabbau pro millisekunde
+    private static final double PER_MILLI_SEC_MASCULIN = 0.2/3600000;
+    private static long milliseconds = 0;
 
     static boolean firstTime = true;
 
     //duration
-    public static long diff = 0;
-    public static long durationSec, durationMin, durationHour;
-    public static boolean durationRunning = false;
+    private static long diff = 0;
+    static long durationSec, durationMin, durationHour;
+    static boolean durationRunning = false;
 
     //sober
-    public static boolean soberRunning = false;
-    public static double soberTime;
-    public static int soberSec, soberMin, soberHour;
-    static NumberFormat numberFormat = new DecimalFormat("0");
+    static boolean soberRunning = false;
+    private static double soberTime;
+    static int soberSec, soberMin, soberHour;
+    private static NumberFormat numberFormat = new DecimalFormat("0");
     static double min, sec;
 
-    public static double calcPromille(String drink){
+    //start
+    private static long startTime = 0;
+    private static int startHour, startMin, startSec;
+
+
+    static double calcPromille(String drink){
 
         double result = 0;
         double alkoholMenge = 0;
@@ -48,9 +55,9 @@ public class CalculateFunction {
         if (erg != 0.00){
             milliseconds = diff - milliseconds;
             if (gender == 1)
-                erg = erg - milliseconds*perMilliSecFeminin;
+                erg = erg - milliseconds* PER_MILLI_SEC_FEMININ;
             else if (gender == 2)
-                erg = erg - milliseconds*perMilliSecMasculin;
+                erg = erg - milliseconds* PER_MILLI_SEC_MASCULIN;
         }
 
         switch (drink) {
@@ -112,7 +119,7 @@ public class CalculateFunction {
         return  (menge*(vol/100)*0.8);
     }
 
-    public static void durationTime(){
+    static void durationTime(){
         Date currentDate = new Date();
         diff = currentDate.getTime() - startTime;
         durationSec  = diff / 1000 % 60;
@@ -120,7 +127,7 @@ public class CalculateFunction {
         durationHour = diff / (60 * 60 *1000);
     }
 
-    public static void soberStartTime(){
+    private static void soberStartTime(){
         numberFormat.setRoundingMode(RoundingMode.DOWN);
 
         //Promille Abbau 0,1 weiblich, 0,2 männlich pro Stunde
@@ -143,9 +150,31 @@ public class CalculateFunction {
 
         mySoberView.setText(String.valueOf(soberHour)+ "h "+String.valueOf(soberMin)
                 +"min "+String.valueOf(soberSec) + "sec");
+
+        //sober end time
+        //startTime + soberTime
+        int soberAtSec, soberAtMin = 0, soberAtHour = 0;
+        soberAtSec = startSec + soberSec;
+        if(soberAtSec >= 60){
+            soberAtSec = soberAtSec % 60;
+            soberAtMin = 1;
+        }
+        soberAtMin += startMin + soberMin;
+        if (soberAtMin >= 60){
+            soberAtMin = soberAtMin % 60;
+            soberAtHour = 1;
+        }
+        soberAtHour += startHour + soberHour;
+        if (soberAtHour >= 24){
+            soberAtHour = soberAtHour % 24;
+        }
+
+        mySoberAtView.setText(String.format(Locale.getDefault(),"%02d", soberAtHour)
+                + ":"+String.format(Locale.getDefault(),"%02d",soberAtMin)
+                +":"+String.format(Locale.getDefault(),"%02d",soberAtSec));
     }
 
-    public static void soberTime(){
+    static void soberTime(){
         if (--soberSec <= 0){
             if (soberMin == 0 && soberHour == 0)
                 soberSec = 0;
@@ -165,7 +194,8 @@ public class CalculateFunction {
         }
     }
 
-    public static void startThreads(){
+    static void startThreads(){
+
         if (firstTime)
         {
             //set startTime
@@ -180,17 +210,28 @@ public class CalculateFunction {
         }
 
         //start promille thread
-        CalculateFunction.soberStartTime();
-        soberRunning=true;
-        soberThread();
+        soberStartTime();
+        if(!soberRunning){
+            soberRunning=true;
+            soberThread();
+        }
+
     }
 
-    public static void setStartTime(){
+    private static void setStartTime(){
         //set startTime
         Date d = new Date();
         startTime = d.getTime();
+        //depricated
+//        startHour = d.getHours();
+//        startMin = d.getMinutes();
+//        startSec = d.getSeconds();
         CharSequence s  = DateFormat.format("kk:mm:ss ", startTime);  //kk for 24h format
         myStartView.setText(s);
+        Calendar c = Calendar.getInstance();
+        startHour = c.get(Calendar.HOUR_OF_DAY);
+        startMin = c.get(Calendar.MINUTE);
+        startSec = c.get(Calendar.SECOND);
     }
 
 }

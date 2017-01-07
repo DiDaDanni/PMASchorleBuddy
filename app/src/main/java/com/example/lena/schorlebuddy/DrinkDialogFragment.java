@@ -41,7 +41,7 @@ public class DrinkDialogFragment extends DialogFragment {
     }
 
     public void startTask(String drink){
-        soberRunning = false;
+
         myTexteinblendungenView.setText("");
         if(CalculateFunction.gender == 0 || CalculateFunction.weight == 0)
         {
